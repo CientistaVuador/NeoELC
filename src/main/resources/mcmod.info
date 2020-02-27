@@ -1,0 +1,16 @@
+[
+{
+  "modid": "NeoELC",
+  "name": "NeoELC",
+  "description": "O Servidor",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Cien"],
+  "credits": "Feito por Cien",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
