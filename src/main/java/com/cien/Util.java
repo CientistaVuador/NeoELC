@@ -6,6 +6,8 @@ import java.util.List;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 public class Util {
 	
@@ -37,6 +39,15 @@ public class Util {
 	
 	public static int getTPS() {
 		return TPS;
+	}
+	
+	public static WorldServer getWorld(String name) {
+		for (WorldServer sv:DimensionManager.getWorlds()) {
+			if (sv.provider.getDimensionName().equals(name)) {
+				return sv;
+			}
+		}
+		return null;
 	}
 	
 	public static ServerConfigurationManager getServerManager() {
