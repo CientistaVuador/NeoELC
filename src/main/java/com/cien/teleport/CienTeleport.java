@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
-
-import com.cien.Util;
 import com.cien.data.Properties;
 
 
@@ -34,9 +32,7 @@ public class CienTeleport {
 	
 	private CienTeleport() {
 		System.out.println("CienTeleport Ativado!");
-		Util.run("CienTeleport Load", () -> {
-			load();
-		});
+		load();
 	}
 	
 	public void load() {
@@ -156,7 +152,7 @@ public class CienTeleport {
 	}
 	
 	public boolean containsWarp(String name) {
-		for (Home h:getHomes()) {
+		for (Warp h:getWarps()) {
 			if (h.getName().equals(name)) {
 				return true;
 			}

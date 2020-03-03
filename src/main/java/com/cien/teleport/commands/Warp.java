@@ -32,8 +32,7 @@ public class Warp extends CienCommandBase {
 				com.cien.teleport.Warp w = CienTeleport.TELEPORT.getWarp(name);
 				WorldServer world = Util.getWorld(w.getWorld());
 				if (world != null) {
-					player.setWorld(world);
-					player.setPositionAndRotation(w.getX(), w.getY(), w.getZ(), w.getYaw(), w.getPitch());
+					Util.teleportPlayer(player, world, w.getX(), w.getY(), w.getZ(), w.getPitch(), w.getYaw());
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Teleportado!")));
 				} else {
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bMundo não carregado ou inválido.")));

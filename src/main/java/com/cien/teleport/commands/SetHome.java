@@ -21,8 +21,8 @@ public class SetHome extends CienCommandBase {
 			String nome = args[0];
 			com.cien.teleport.Home w = new com.cien.teleport.Home(nome, player.getCommandSenderName(), player.worldObj.provider.getDimensionName(), (float)player.posX, (float)player.posY, (float)player.posZ, player.rotationPitch, player.rotationYaw);
 			
-			if (CienTeleport.TELEPORT.containsHome(w.getName(), w.getOwner())) {
-				if (CienTeleport.TELEPORT.getNumberOfHomes(player.getCommandSenderName()) >= CienTeleport.TELEPORT.getMaxHomes(player.getCommandSenderName())) {
+			if (!CienTeleport.TELEPORT.containsHome(w.getName(), w.getOwner())) {
+				if (CienTeleport.TELEPORT.getNumberOfHomes(player.getCommandSenderName()) < CienTeleport.TELEPORT.getMaxHomes(player.getCommandSenderName())) {
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Home definida com Sucesso!")));
 					CienTeleport.TELEPORT.addHome(w);
 				} else {

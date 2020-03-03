@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
@@ -35,6 +37,23 @@ public class Util {
 	
 	public static String getModExclusivePrefix() {
 		return "(EXC)";
+	}
+	
+	public static void teleportPlayer(EntityPlayerMP player, World w, float x, float y, float z, float pitch, float yaw) {
+		int oldDim = player.worldObj.provider.dimensionId;
+		if (oldDim != w.provider.dimensionId) {
+			player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId);
+		}
+		player.setPositionAndRotation(x, y, z, yaw, pitch);
+		player.setPositionAndUpdate(x, y, z);
+		player.addExperienceLevel(0);
+		if (oldDim == 1 && oldDim != w.provider.dimensionId) {
+			Util.run("Remove player from end: "+player.getDisplayName(), () -> {
+				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId);
+	            player.setPositionAndUpdate(x, y, z);
+	            player.getServerForPlayer().updateEntityWithOptionalForce(player, false);
+			}, 2);
+        }
 	}
 	
 	public static int getTPS() {

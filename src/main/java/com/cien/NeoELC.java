@@ -7,6 +7,14 @@ import com.cien.login.CienLogin;
 import com.cien.login.commands.Login;
 import com.cien.login.commands.Register;
 import com.cien.permissions.commands.Perms;
+import com.cien.teleport.commands.DelHome;
+import com.cien.teleport.commands.DelWarp;
+import com.cien.teleport.commands.GotoHome;
+import com.cien.teleport.commands.Home;
+import com.cien.teleport.commands.SetHome;
+import com.cien.teleport.commands.SetMaxHomes;
+import com.cien.teleport.commands.SetWarp;
+import com.cien.teleport.commands.Warp;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -63,6 +71,16 @@ public class NeoELC {
     	
     	//CienPermissions
     	event.registerServerCommand(new Perms());
+    	
+    	//CienTeleport
+    	event.registerServerCommand(new DelHome());
+    	event.registerServerCommand(new DelWarp());
+    	event.registerServerCommand(new GotoHome());
+    	event.registerServerCommand(new Home());
+    	event.registerServerCommand(new SetHome());
+    	event.registerServerCommand(new SetMaxHomes());
+    	event.registerServerCommand(new SetWarp());
+    	event.registerServerCommand(new Warp());
     }
     
     @EventHandler

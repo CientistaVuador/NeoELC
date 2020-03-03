@@ -33,8 +33,7 @@ public class Home extends CienCommandBase {
 			} else {
 				WorldServer world = Util.getWorld(h.getWorld());
 				if (world != null) {
-					player.setWorld(world);
-					player.setPositionAndRotation(h.getX(), h.getY(), h.getZ(), h.getYaw(), h.getPitch());
+					Util.teleportPlayer(player, world, h.getX(), h.getY(), h.getZ(), h.getPitch(), h.getYaw());
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Teleportado!")));
 				} else {
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bMundo não carregado ou inválido.")));
