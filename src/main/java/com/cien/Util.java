@@ -3,6 +3,8 @@ package com.cien;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cien.data.Properties;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.ServerConfigurationManager;
@@ -35,8 +37,59 @@ public class Util {
 		return t;
 	}
 	
+	public static EntityPlayerMP[] getOnlinePlayers() {
+		ServerConfigurationManager manager = getServerManager();
+		List<?> l = manager.playerEntityList;
+		List<EntityPlayerMP> list = new ArrayList<>();
+		for (Object o:l) {
+			if (o instanceof EntityPlayerMP) {
+				list.add((EntityPlayerMP)o);
+			}
+		}
+		return list.toArray(new EntityPlayerMP[list.size()]);
+	}
+	
+	public static boolean exist(String player) {
+		return Properties.hasProperties(player);
+	}
+	
+	public static boolean isOnline(String player) {
+		for (EntityPlayerMP p:getOnlinePlayers()) {
+			if (player.equals(p.getCommandSenderName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static EntityPlayerMP getOnlinePlayer(String player) {
+		for (EntityPlayerMP p:getOnlinePlayers()) {
+			if (player.equals(p.getCommandSenderName())) {
+				return p;
+			}
+		}
+		return null;
+	}
+	
 	public static String getModExclusivePrefix() {
 		return "(EXC)";
+	}
+	
+	public static int getRealLenghtOfMessage(String message) {
+		boolean color = false;
+		int count = 0;
+		for (char c:message.toCharArray()) {
+			if (color) {
+				color = false;
+				continue;
+			}
+			if (c == '§' || c == '&') {
+				color = true;
+				continue;
+			}
+			count++;
+		}
+		return count;
 	}
 	
 	public static void teleportPlayer(EntityPlayerMP player, World w, float x, float y, float z, float pitch, float yaw) {
@@ -103,6 +156,10 @@ public class Util {
 	
 	public static String getPrefix() {
 		return "§8§l[§bNeo§6ELC§8§l]§6 ";
+	}
+	
+	public static String getErrorPrefix() {
+		return "§8§l[§bNeo§6ELC§8§l]§c ";
 	}
 	
 	private Util() {

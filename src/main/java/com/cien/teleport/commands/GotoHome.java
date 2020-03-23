@@ -20,11 +20,11 @@ public class GotoHome extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "admin.gotohome")) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bSem Permissão.")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
 			return;
 		}
 		if (args.length < 1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /gotohome <Player> <Home>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /gotohome <Player> <Home>")));
 		} else {
 			String playr = args[0];
 			String home = null;
@@ -32,11 +32,11 @@ public class GotoHome extends CienCommandBase {
 				home = args[1];
 			}
 			if (!Properties.hasProperties(playr)) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEsse player não existe.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Esse player não existe.")));
 			} else {
 				com.cien.teleport.Home[] homes = CienTeleport.TELEPORT.getHomes(playr);
 				if (homes.length == 0) {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEsse player não possui homes.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Esse player não possui homes.")));
 				} else {
 					if (home == null) {
 						sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Homes de "+playr+":")));
@@ -46,14 +46,14 @@ public class GotoHome extends CienCommandBase {
 					} else {
 						com.cien.teleport.Home f = CienTeleport.TELEPORT.getHome(home, playr);
 						if (f == null) {
-							sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEssa home não existe.")));
+							sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Essa home não existe.")));
 						} else {
 							WorldServer world = Util.getWorld(f.getWorld());
 							if (world != null) {
 								Util.teleportPlayer(player, world, f.getX(), f.getY(), f.getZ(), f.getPitch(), f.getYaw());
 								sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Teleportado!")));
 							} else {
-								sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bMundo não carregado ou inválido.")));
+								sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Mundo não carregado ou inválido.")));
 							}
 						}
 					}

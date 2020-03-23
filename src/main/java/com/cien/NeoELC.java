@@ -1,5 +1,14 @@
 package com.cien;
 
+import com.cien.chat.CienChat;
+import com.cien.chat.commands.Desmutar;
+import com.cien.chat.commands.Global;
+import com.cien.chat.commands.Mutar;
+import com.cien.chat.commands.Privado;
+import com.cien.chat.commands.SetNick;
+import com.cien.chat.commands.SetPrefix;
+import com.cien.chat.commands.Staff;
+import com.cien.chat.commands.Vip;
 import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
@@ -56,6 +65,9 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienLogin.LOGIN);
         MinecraftForge.EVENT_BUS.register(CienLogin.LOGIN);
         
+        //CienChat
+        FMLCommonHandler.instance().bus().register(CienChat.CHAT);
+        MinecraftForge.EVENT_BUS.register(CienChat.CHAT);
         
     }
     
@@ -81,6 +93,16 @@ public class NeoELC {
     	event.registerServerCommand(new SetMaxHomes());
     	event.registerServerCommand(new SetWarp());
     	event.registerServerCommand(new Warp());
+    	
+    	//CienChat
+    	event.registerServerCommand(new Global());
+    	event.registerServerCommand(new SetNick());
+    	event.registerServerCommand(new SetPrefix());
+    	event.registerServerCommand(new Desmutar());
+    	event.registerServerCommand(new Mutar());
+    	event.registerServerCommand(new Vip());
+    	event.registerServerCommand(new Staff());
+    	event.registerServerCommand(new Privado());
     }
     
     @EventHandler

@@ -18,11 +18,11 @@ public class SetWarp extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!CienPermissions.PERMISSIONS.hasPermission(player.getCommandSenderName(), "admin.setwarp")) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bSem Permissão.")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
 			return;
 		}
 		if (args.length < 1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /setwarp <Nome>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /setwarp <Nome>")));
 		} else {
 			String nome = args[0];
 			com.cien.teleport.Warp w = new com.cien.teleport.Warp(nome, player.worldObj.provider.getDimensionName(), (float)player.posX, (float)player.posY, (float)player.posZ, player.rotationPitch, player.rotationYaw);

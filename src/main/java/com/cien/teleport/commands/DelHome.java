@@ -17,11 +17,11 @@ public class DelHome extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (args.length < 1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /delhome <Nome>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /delhome <Nome>")));
 		} else {
 			com.cien.teleport.Home h = CienTeleport.TELEPORT.getHome(args[0], player.getCommandSenderName());
 			if (h == null) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEssa home não existe.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Essa home não existe.")));
 			} else {
 				CienTeleport.TELEPORT.removeHome(h);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Removida com Sucesso!")));

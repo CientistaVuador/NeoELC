@@ -18,16 +18,16 @@ public class DelWarp extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "admin.delwarp")) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bSem Permissão.")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
 			return;
 		}
 		if (args.length < 1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /delwarp <Nome>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /delwarp <Nome>")));
 		} else {
 			String nome = args[0];
 			com.cien.teleport.Warp w = CienTeleport.TELEPORT.getWarp(nome);
 			if (w == null) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEssa warp não existe.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Essa warp não existe.")));
 			} else {
 				CienTeleport.TELEPORT.removeWarp(w);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Warp removida com Sucesso!")));

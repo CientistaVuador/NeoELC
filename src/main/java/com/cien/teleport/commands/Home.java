@@ -19,7 +19,7 @@ public class Home extends CienCommandBase {
 		if (args.length == 0) {
 			com.cien.teleport.Home[] h = CienTeleport.TELEPORT.getHomes(sender.getCommandSenderName());
 			if (h.length == 0) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bVocê não possui nenhuma home.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não possui nenhuma home.")));
 			} else {
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Homes:")));
 				for (com.cien.teleport.Home f:h) {
@@ -36,7 +36,7 @@ public class Home extends CienCommandBase {
 					Util.teleportPlayer(player, world, h.getX(), h.getY(), h.getZ(), h.getPitch(), h.getYaw());
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Teleportado!")));
 				} else {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bMundo não carregado ou inválido.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Mundo não carregado ou inválido.")));
 				}
 			}
 		}

@@ -19,7 +19,7 @@ public class Warp extends CienCommandBase {
 		if (args.length < 1) {
 			com.cien.teleport.Warp[] warps = CienTeleport.TELEPORT.getWarps();
 			if (warps.length == 0) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bNão há nenhuma warp definida")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Não há nenhuma warp definida")));
 			} else {
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Warps:")));
 				for (com.cien.teleport.Warp w:warps) {
@@ -35,10 +35,10 @@ public class Warp extends CienCommandBase {
 					Util.teleportPlayer(player, world, w.getX(), w.getY(), w.getZ(), w.getPitch(), w.getYaw());
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Teleportado!")));
 				} else {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bMundo não carregado ou inválido.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Mundo não carregado ou inválido.")));
 				}
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEssa warp não existe.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Essa warp não existe.")));
 			}
 		}
 	}

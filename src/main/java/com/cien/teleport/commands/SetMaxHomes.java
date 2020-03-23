@@ -19,11 +19,11 @@ public class SetMaxHomes extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "admin.setmaxhomes")) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bSem Permissão")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão")));
 			return;
 		}
 		if (args.length < 2) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /setmaxhomes <Player> <Max Homes>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /setmaxhomes <Player> <Max Homes>")));
 		} else {
 			String playr = args[0];
 			int maxHomes;
@@ -33,11 +33,11 @@ public class SetMaxHomes extends CienCommandBase {
 					throw new NumberFormatException("Não é permitido números negativos.");
 				}
 			} catch (NumberFormatException ex) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bErro: "+ex.getMessage())));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Erro: "+ex.getMessage())));
 				return;
 			}
 			if (!Properties.hasProperties(playr)) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bPlayer Inválido.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player Inválido.")));
 				return;
 			}
 			CienTeleport.TELEPORT.setMaxHomes(playr, maxHomes);

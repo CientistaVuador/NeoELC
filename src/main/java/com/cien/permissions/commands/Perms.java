@@ -23,7 +23,7 @@ public class Perms extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
 		if (args.length<1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms <set/get/copy/reload>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms <set/get/copy/reload>")));
 		} else {
 			String arg = args[0].toLowerCase();
 			if (arg.equals("set")) {
@@ -35,28 +35,28 @@ public class Perms extends CommandBase {
 			} else if (arg.equals("reload")) {
 				reload(sender, args);
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms <set/get/copy/reload>")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms <set/get/copy/reload>")));
 			}
 		}
 	}
 	
 	private void reload(ICommandSender sender, String[] args) {
 		if (args.length<2) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms reload <grupo>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms reload <grupo>")));
 		} else {
 			String group = args[1];
 			if (CienPermissions.PERMISSIONS.hasGroup(group)) {
 				CienPermissions.PERMISSIONS.reload(group);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Grupo Recarregado!")));
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 			}
 		}
 	}
 	
 	private void copy(ICommandSender sender, String[] args) {
 		if (args.length < 3) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms copy <grupo a> <grupo b>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms copy <grupo a> <grupo b>")));
 		} else {
 			String a = args[1];
 			String b = args[2];
@@ -68,17 +68,17 @@ public class Perms extends CommandBase {
 					}
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Copiado com Sucesso!")));
 				} else {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo "+b+" não existe.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo "+b+" não existe.")));
 				}
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo "+a+" não existe.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo "+a+" não existe.")));
 			}
 		}
 	}
 	
 	private void get(ICommandSender sender, String[] args) {
 		if (args.length < 2) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms get <groups/group/player>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms get <groups/group/player>")));
 		} else {
 			String arg = args[1].toLowerCase();
 			if (arg.equals("groups")) {
@@ -90,7 +90,7 @@ public class Perms extends CommandBase {
 			} else if (arg.equals("default")) {
 				get_default(sender, args);
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms get <groups/group/player>")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms get <groups/group/player>")));
 			}
 		}
 	}
@@ -98,7 +98,7 @@ public class Perms extends CommandBase {
 	private void groups(ICommandSender sender, String[] args) {
 		String[] groups = CienPermissions.PERMISSIONS.getPermissionsGroups();
 		if (groups.length==0) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bNão há grupos disponíveis.")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Não há grupos disponíveis.")));
 		} else {
 			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Grupos:")));
 			for (String s:groups) {
@@ -109,13 +109,13 @@ public class Perms extends CommandBase {
 	
 	private void group(ICommandSender sender, String[] args) {
 		if (args.length < 3) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms get group <grupo>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms get group <grupo>")));
 		} else {
 			String arg = args[2];
 			if (CienPermissions.PERMISSIONS.hasGroup(arg)) {
 				String[] perms = CienPermissions.PERMISSIONS.getGroupPermissions(arg);
 				if (perms.length==0) {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEsse grupo não possui nenhuma permissão.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Esse grupo não possui nenhuma permissão.")));
 				} else {
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Permissões:")));
 					for (String s:perms) {
@@ -123,32 +123,32 @@ public class Perms extends CommandBase {
 					}
 				}
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 			}
 		}
 	}
 	
 	private void player(ICommandSender sender, String[] args) {
 		if (args.length < 3) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms get player <player>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms get player <player>")));
 		} else {
 			String arg = args[2];
 			if (Properties.hasProperties(arg)) {
 				String group = CienPermissions.PERMISSIONS.getGroup(arg);
 				if (group == null) {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bEsse player não possui grupo")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Esse player não possui grupo")));
 				} else {
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Grupo de "+arg+" -> "+group)));
 				}
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bPlayer Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player Inexistente.")));
 			}
 		}
 	}
 	
 	private void set(ICommandSender sender, String[] args) {
 		if (args.length < 2) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set <group/perm/player/default>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set <group/perm/player/default>")));
 		} else {
 			String arg = args[1].toLowerCase();
 			if (arg.equals("group")) {
@@ -160,21 +160,21 @@ public class Perms extends CommandBase {
 			} else if (arg.equals("default")) {
 				set_default(sender, args);
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set <group/perm/player>")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set <group/perm/player>")));
 			}
 		}
 	}
 	
 	private void set_default(ICommandSender sender, String[] args) {
 		if (args.length < 3) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set default <grupo>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set default <grupo>")));
 		} else {
 			String grupo = args[2];
 			if (CienPermissions.PERMISSIONS.hasGroup(grupo)) {
 				CienPermissions.PERMISSIONS.setDefaultGroup(grupo);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 			}
 		}
 	}
@@ -182,7 +182,7 @@ public class Perms extends CommandBase {
 	private void get_default(ICommandSender sender, String[] args) {
 		String group = CienPermissions.PERMISSIONS.getDefaultGroup();
 		if (group == null) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo padrão não definido")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo padrão não definido")));
 		} else {
 			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+group)));
 		}
@@ -190,7 +190,7 @@ public class Perms extends CommandBase {
 	
 	private void set_group(ICommandSender sender, String[] args) {
 		if (args.length < 3) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set group <prefix/removed>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set group <prefix/removed>")));
 		} else {
 			String arg = args[2].toLowerCase();
 			if (arg.equals("prefix")) {
@@ -198,14 +198,14 @@ public class Perms extends CommandBase {
 			} else if (arg.equals("removed")) {
 				group_removed(sender, args);
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set group <prefix/removed>")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set group <prefix/removed>")));
 			}
 		}
 	}
 	
 	private void group_prefix(ICommandSender sender, String[] args) {
 		if (args.length < 5) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set group prefix <grupo> <prefix>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set group prefix <grupo> <prefix>")));
 		} else {
 			String group = args[3];
 			String prefix = args[4];
@@ -213,28 +213,28 @@ public class Perms extends CommandBase {
 				CienPermissions.PERMISSIONS.setGroupPrefix(group, prefix);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 			}
 		}
 	}
 	
 	private void group_removed(ICommandSender sender, String[] args) {
 		if (args.length < 4) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set group removed <grupo>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set group removed <grupo>")));
 		} else {
 			String group = args[3];
 			if (CienPermissions.PERMISSIONS.hasGroup(group)) {
 				CienPermissions.PERMISSIONS.deleteGroup(group);
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 			}
 		}
 	}
 
 	private void set_perm(ICommandSender sender, String[] args) {
 		if (args.length < 5) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set perm <grupo> <permissão> <true/false>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set perm <grupo> <permissão> <true/false>")));
 		} else {
 			String grupo = args[2];
 			String perm = args[3];
@@ -249,7 +249,7 @@ public class Perms extends CommandBase {
 
 	private void set_player(ICommandSender sender, String[] args) {
 		if (args.length < 4) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bUso: /perms set player <player> <grupo>")));
+			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms set player <player> <grupo>")));
 		} else {
 			String player = args[2];
 			String grupo = args[3];
@@ -258,10 +258,10 @@ public class Perms extends CommandBase {
 					CienPermissions.PERMISSIONS.setGroup(player, grupo);
 					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
 				} else {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bGrupo Inexistente.")));
+					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Grupo Inexistente.")));
 				}
 			} else {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§bPlayer Inexistente.")));
+				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player Inexistente.")));
 			}
 		}
 	}
