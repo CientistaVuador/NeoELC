@@ -40,6 +40,20 @@ public class CienChat {
 		}
 	}
 	
+	public void setLastSenderFor(String player, String sender) {
+		Properties prop = Properties.getProperties(player);
+		prop.setMemory("lastSender", sender);
+	}
+	
+	public String getLastSenderFor(String player) {
+		Properties prop = Properties.getProperties(player);
+		Object obj = prop.getMemory("lastSender");
+		if (obj == null) {
+			return null;
+		}
+		return (String)obj;
+	}
+	
 	public void setMutedTimeLeft(String player, long time) {
 		Properties prop = Properties.getProperties(player);
 		prop.set("muteTime", Long.toString(time+System.currentTimeMillis()));
@@ -173,7 +187,7 @@ public class CienChat {
 		System.out.println("[LOCAL] "+event.player.getCommandSenderName()+": "+event.message);
 	}
 	
-	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
+	@SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)
 	public void onCommand(CommandEvent event) {
 		if (event.command.getCommandName().equalsIgnoreCase("tell")) {
 			event.sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Use /p <Player> <Mensagem> ao invés de /tell")));

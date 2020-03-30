@@ -54,6 +54,7 @@ public class Privado extends CienCommandBase {
 					}
 				}
 				System.out.println("[PRIVADO] "+sender.getCommandSenderName()+" -> "+receiver+": "+builder.toString());
+				CienChat.CHAT.setLastSenderFor(receiver, sender.getCommandSenderName());
 			} else {
 				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player offline ou inválido.")));
 			}

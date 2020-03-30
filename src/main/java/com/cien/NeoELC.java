@@ -5,10 +5,13 @@ import com.cien.chat.commands.Desmutar;
 import com.cien.chat.commands.Global;
 import com.cien.chat.commands.Mutar;
 import com.cien.chat.commands.Privado;
+import com.cien.chat.commands.Responder;
 import com.cien.chat.commands.SetNick;
 import com.cien.chat.commands.SetPrefix;
 import com.cien.chat.commands.Staff;
 import com.cien.chat.commands.Vip;
+import com.cien.claims.CienClaims;
+import com.cien.claims.commands.Blocks;
 import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
@@ -32,12 +35,14 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 
 @Mod(modid = "NeoELC", version = "1.0", acceptedMinecraftVersions = "*", acceptableRemoteVersions = "*", acceptableSaveVersions = "*", name = "NeoELC")
 public class NeoELC {
@@ -68,6 +73,10 @@ public class NeoELC {
         //CienChat
         FMLCommonHandler.instance().bus().register(CienChat.CHAT);
         MinecraftForge.EVENT_BUS.register(CienChat.CHAT);
+        
+        //CienClaims
+        FMLCommonHandler.instance().bus().register(CienClaims.CLAIMS);
+        MinecraftForge.EVENT_BUS.register(CienClaims.CLAIMS);
         
     }
     
@@ -103,6 +112,10 @@ public class NeoELC {
     	event.registerServerCommand(new Vip());
     	event.registerServerCommand(new Staff());
     	event.registerServerCommand(new Privado());
+    	event.registerServerCommand(new Responder());
+    	
+    	//CienClaims
+    	event.registerServerCommand(new Blocks());
     }
     
     @EventHandler
@@ -157,4 +170,16 @@ public class NeoELC {
     		}
     	}
     }
+    
+    @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)
+	public void onCommand(CommandEvent event) {
+    	StringBuilder builder = new StringBuilder(64);
+    	for (int i = 0; i < event.parameters.length; i++) {
+    		builder.append(event.parameters[i]);
+    		if (i != (event.parameters.length - 1)) {
+    			builder.append(' ');
+    		}
+    	}
+		System.out.println(event.sender.getCommandSenderName()+" executou /"+event.command.getCommandName()+" "+builder.toString());
+	}
 }

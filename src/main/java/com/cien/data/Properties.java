@@ -190,6 +190,40 @@ public final class Properties {
 		}
 	}
 	
+	public void setArray(String key, String[] value) {
+		set(key, StringArray.fromStringArray(value));
+	}
+	
+	public String[] getArray(String key) {
+		try {
+			return StringArray.toStringArray(get(key));
+		} catch (Exception ex) {
+			return new String[0];
+		}
+	}
+	
+	public void setNode(String key, Node value) {
+		if (value == null) {
+			set(key, null);
+		}
+		if (!value.getName().equals(key)) {
+			value.setName(key);
+		}
+		set(key, Node.toString(value));
+	}
+	
+	public Node getNode(String key) {
+		try {
+			Node n = Node.parse(get(key));
+			if (!n.getName().equals(key)) {
+				return new Node(key);
+			}
+			return n;
+		} catch (Exception ex) {
+			return new Node(key);
+		}
+	}
+	
 	public void setBoolean(String key, boolean value) {
 		map.put(key, Boolean.toString(value));
 	}
