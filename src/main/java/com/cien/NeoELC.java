@@ -12,6 +12,10 @@ import com.cien.chat.commands.Staff;
 import com.cien.chat.commands.Vip;
 import com.cien.claims.CienClaims;
 import com.cien.claims.commands.Blocks;
+import com.cien.claims.commands.Claim;
+import com.cien.claims.commands.ClaimAtual;
+import com.cien.claims.commands.Pos1;
+import com.cien.claims.commands.Pos2;
 import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
@@ -116,6 +120,10 @@ public class NeoELC {
     	
     	//CienClaims
     	event.registerServerCommand(new Blocks());
+    	event.registerServerCommand(new Claim());
+    	event.registerServerCommand(new ClaimAtual());
+    	event.registerServerCommand(new Pos1());
+    	event.registerServerCommand(new Pos2());
     }
     
     @EventHandler
@@ -182,4 +190,5 @@ public class NeoELC {
     	}
 		System.out.println(event.sender.getCommandSenderName()+" executou /"+event.command.getCommandName()+" "+builder.toString());
 	}
+    
 }

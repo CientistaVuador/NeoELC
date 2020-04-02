@@ -6,6 +6,7 @@ import java.util.List;
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.login.CienLogin;
 import com.cien.permissions.CienPermissions;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -160,6 +161,10 @@ public class CienChat {
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
 	public void onChatMessage(ServerChatEvent event) {
 		event.setCanceled(true);
+		if (CienLogin.LOGIN.shouldBeFreezed(event.player.getCommandSenderName())) {
+			event.player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Faça login primeiro antes de falar no chat local.")));
+			return;
+		}
 		String msg = CienChat.CHAT.buildLocalChatMessageFor(event.player.getCommandSenderName(), event.message);
 		if (CienPermissions.PERMISSIONS.hasPermission(event.player.getCommandSenderName(), "chat.colors")) {
 			msg = msg.replace('&', '§');

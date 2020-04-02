@@ -9,7 +9,9 @@ import com.cien.Util;
 import com.cien.data.Node;
 import com.cien.data.Properties;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.WorldServer;
 
 public final class Claim {
 
@@ -32,8 +34,8 @@ public final class Claim {
 			this.prop = null;
 		}
 		this.id = id;
-		this.loc1 = center.add(width * -1, 0, lenght);
-		this.loc2 = center.add(width, 0, lenght * -1);
+		this.loc1 = center.add((width/2) * -1, 0, (lenght/2));
+		this.loc2 = center.add((width/2), 0, (lenght/2) * -1);
 		if (id >= 0) {
 			save();
 		}
@@ -97,6 +99,47 @@ public final class Claim {
 		
 		prop.setNode("loc1", loc1);
 		prop.setNode("loc2", loc2);
+	}
+	
+	public boolean collidesWith(Claim other) {
+		if (other == null) {
+			return false;
+		}
+		if (!other.getWorld().equals(getWorld())) {
+			return false;
+		}
+		return isInside(other.getDownLeftCorner()) ||
+				isInside(other.getDownRightCorner()) ||
+				isInside(other.getUpperLeftCorner()) ||
+				isInside(other.getUpperRightCorner());
+	}
+	
+	public void makeFences() {
+		WorldServer w = Util.getWorld(getWorld());
+		int biggerX = getDownRightCorner().getX();
+		int smallX = getDownLeftCorner().getX();
+		int smallZ = getDownLeftCorner().getZ();
+		int biggerZ = getUpperLeftCorner().getZ();
+		for (int x = smallX; x < biggerX; x++) {
+            int highY = Util.getHighestYAt(x, smallZ, w);
+            w.setBlock(x, highY, smallZ, Block.getBlockById(85));
+        }
+        for (int x = smallX; x < biggerX; x++) {
+        	int highY = Util.getHighestYAt(x, smallZ, w);
+            w.setBlock(x, highY, biggerZ, Block.getBlockById(85));
+        }
+        for (int z = smallZ; z < biggerZ; z++) {
+        	int highY = Util.getHighestYAt(smallX, z, w);
+            w.setBlock(smallX, highY, z, Block.getBlockById(85));
+        }
+        for (int z = smallZ; z < biggerZ; z++) {
+        	int highY = Util.getHighestYAt(biggerX, z, w);
+            w.setBlock(biggerX, highY, z, Block.getBlockById(85));
+        }
+        int highY = Util.getHighestYAt(biggerX, biggerZ, w);
+        w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(85));
+        highY = Util.getHighestYAt(smallX, smallZ, w);
+        w.setBlock(smallX, highY, smallZ, Block.getBlockById(85));
 	}
 	
 	public PositiveLocation getLocation1() {
@@ -188,9 +231,9 @@ public final class Claim {
 			return center;
 		}
 		center = new PositiveLocation(
-				(PositiveLocation.bigger(loc1.getPositiveX(), loc2.getPositiveX())-getWidth())-PositiveLocation.MAX,
+				(PositiveLocation.bigger(loc1.getPositiveX(), loc2.getPositiveX())-(getWidth()/2))-PositiveLocation.MAX,
 				loc1.getY(),
-				(PositiveLocation.bigger(loc1.getPositiveZ(), loc2.getPositiveZ())-getLenght())-PositiveLocation.MAX);
+				(PositiveLocation.bigger(loc1.getPositiveZ(), loc2.getPositiveZ())-(getLenght()/2))-PositiveLocation.MAX);
 		return center;
 	}
 	
@@ -247,6 +290,10 @@ public final class Claim {
 	
 	public boolean isInside(EntityPlayerMP player) {
 		return PositiveLocation.insideXZ(loc1, loc2, new PositiveLocation((int)player.posX, 0, (int)player.posZ));
+	}
+	
+	public boolean isInside(PositiveLocation loc) {
+		return PositiveLocation.insideXZ(loc1, loc2, loc);
 	}
 	
 	public boolean isInside(String player) {

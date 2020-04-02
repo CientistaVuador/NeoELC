@@ -96,11 +96,11 @@ public class PositiveLocation {
 	}
 	
 	public PositiveLocation add(int x, int y, int z) {
-		return new PositiveLocation(this.x+x, this.y+y, this.z+z);
+		return new PositiveLocation(getX()+x, getY()+y, getZ()+z);
 	}
 	
 	public PositiveLocation remove(int x, int y, int z) {
-		return new PositiveLocation(this.x-x, this.y-y, this.z-z);
+		return new PositiveLocation(getX()-x, getY()-y, getZ()-z);
 	}
 	
 	public int distance(PositiveLocation loc) {

@@ -64,7 +64,6 @@ public final class Properties {
 		StringBuilder b = new StringBuilder(64);
 		for (char c:s.toCharArray()) {
 			switch (c) {
-				case '=':
 				case '\\':
 				case '\n':
 					b.append('\\');
@@ -139,6 +138,7 @@ public final class Properties {
 			StringBuilder b = new StringBuilder(64);
 			String key = null;
 			boolean escape = false;
+			boolean equals = false;
 			int f;
 			while ((f = reader.read()) != -1) {
 				char c = (char) f;
@@ -147,15 +147,17 @@ public final class Properties {
 					escape = false;
 					continue;
 				}
-				if (c == '=') {
+				if (c == '=' && !equals) {
 					key = b.toString();
 					b.setLength(0);
+					equals = true;
 					continue;
 				}
 				if (c == '\n') {
 					map.put(key, b.toString());
 					key = null;
 					b.setLength(0);
+					equals = false;
 					continue;
 				}
 				if (c == '\\') {

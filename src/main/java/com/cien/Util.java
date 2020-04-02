@@ -53,6 +53,10 @@ public class Util {
 		return Properties.hasProperties(player);
 	}
 	
+	public static int getHighestYAt(int x, int z, WorldServer world) {
+		return world.getHeightValue(x, z);
+	}
+	
 	public static boolean isOnline(String player) {
 		for (EntityPlayerMP p:getOnlinePlayers()) {
 			if (player.equals(p.getCommandSenderName())) {
