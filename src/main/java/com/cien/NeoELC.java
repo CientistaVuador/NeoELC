@@ -30,6 +30,11 @@ import com.cien.teleport.commands.Home;
 import com.cien.teleport.commands.SetHome;
 import com.cien.teleport.commands.SetMaxHomes;
 import com.cien.teleport.commands.SetWarp;
+import com.cien.teleport.commands.Tpa;
+import com.cien.teleport.commands.Tpac;
+import com.cien.teleport.commands.Tphere;
+import com.cien.teleport.commands.Tpp;
+import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -106,6 +111,11 @@ public class NeoELC {
     	event.registerServerCommand(new SetMaxHomes());
     	event.registerServerCommand(new SetWarp());
     	event.registerServerCommand(new Warp());
+    	event.registerServerCommand(new Tpa());
+    	event.registerServerCommand(new Tprc());
+    	event.registerServerCommand(new Tpac());
+    	event.registerServerCommand(new Tphere());
+    	event.registerServerCommand(new Tpp());
     	
     	//CienChat
     	event.registerServerCommand(new Global());

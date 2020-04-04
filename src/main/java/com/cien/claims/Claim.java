@@ -15,15 +15,25 @@ import net.minecraft.world.WorldServer;
 
 public final class Claim {
 
-	private final PositiveLocation loc1;
-	private final PositiveLocation loc2;
+	private final int biggerX;
+	private final int smallerX;
+	private final int biggerZ;
+	private final int smallerZ;
+	
+	private final PositiveLocation left_up;
+	private final PositiveLocation left_down;
+	private final PositiveLocation right_up;
+	private final PositiveLocation right_down;
+	private final PositiveLocation center;
+	
+	private final int lenght;
+	private final int width;
+	
 	private final String world;
 	private final String owner;
 	private final List<String> flags = new ArrayList<>();
 	private final Properties prop;
 	private final int id;
-	
-	private PositiveLocation center = null;
 	
 	public Claim(PositiveLocation center, String world, String owner, int id, int width, int lenght) {
 		this.world = world;
@@ -34,16 +44,88 @@ public final class Claim {
 			this.prop = null;
 		}
 		this.id = id;
-		this.loc1 = center.add((width/2) * -1, 0, (lenght/2));
-		this.loc2 = center.add((width/2), 0, (lenght/2) * -1);
+		
+		left_up = center.add(
+				(width/2) * -1,
+				0,
+				lenght / 2
+				);
+		
+		left_down = center.add(
+				(width/2) * -1,
+				0,
+				(lenght/2) * -1
+				);
+		
+		right_up = center.add(
+				width / 2,
+				0,
+				lenght / 2
+				);
+		
+		right_down = center.add(
+				width / 2,
+				0,
+				(lenght/2) * -1
+				);
+		
+		this.center = center;
+		
+		this.biggerX = right_up.getX();
+		this.smallerX = left_up.getX();
+		this.biggerZ = left_up.getZ();
+		this.smallerZ = left_down.getZ();
+		
+		this.width = width;
+		this.lenght = lenght;
+		
 		if (id >= 0) {
 			save();
 		}
 	}
 	
 	public Claim(PositiveLocation loc1, PositiveLocation loc2, String world, String owner, int id) {
-		this.loc1 = loc1;
-		this.loc2 = loc2;
+		
+		this.biggerX = PositiveLocation.bigger(loc1.getX(), loc2.getX());
+		this.smallerX = PositiveLocation.smaller(loc1.getX(), loc2.getX());
+		this.biggerZ = PositiveLocation.bigger(loc1.getZ(), loc2.getZ());
+		this.smallerZ = PositiveLocation.smaller(loc1.getZ(), loc2.getZ());
+		
+		int y = loc1.getY();
+		
+		left_up = new PositiveLocation(
+				smallerX,
+				y,
+				biggerZ
+				);
+		
+		left_down = new PositiveLocation(
+				smallerX,
+				y,
+				smallerZ
+				);
+		
+		right_up = new PositiveLocation(
+				biggerX,
+				y,
+				biggerZ
+				);
+		
+		right_down = new PositiveLocation(
+				biggerX,
+				y,
+				smallerZ
+				);
+		
+		center = new PositiveLocation(
+				biggerX/2,
+				y,
+				biggerZ/2
+				);
+		
+		this.width = right_down.getPositiveX() - left_down.getPositiveX();
+		this.lenght = left_up.getPositiveZ() - left_down.getPositiveZ();
+		
 		this.world = world;
 		this.owner = owner;
 		if (id >= 0) {
@@ -63,17 +145,58 @@ public final class Claim {
 		this.id = Integer.parseInt(prop.get("id"));
 		this.prop = prop;
 		
-		Node loc1 = prop.getNode("loc1");
-		Node loc2 = prop.getNode("loc2");
+		Node pos1 = prop.getNode("loc1");
+		Node pos2 = prop.getNode("loc2");
 		
-		this.loc1 = new PositiveLocation(
-				Integer.parseInt(loc1.getField("x")),
-				Integer.parseInt(loc1.getField("y")),
-				Integer.parseInt(loc1.getField("z")));
-		this.loc2 = new PositiveLocation(
-				Integer.parseInt(loc2.getField("x")),
-				Integer.parseInt(loc2.getField("y")),
-				Integer.parseInt(loc2.getField("z")));
+		PositiveLocation loc1 = new PositiveLocation(
+				Integer.parseInt(pos1.getField("x")),
+				Integer.parseInt(pos1.getField("y")),
+				Integer.parseInt(pos1.getField("z")));
+		PositiveLocation loc2 = new PositiveLocation(
+				Integer.parseInt(pos2.getField("x")),
+				Integer.parseInt(pos2.getField("y")),
+				Integer.parseInt(pos2.getField("z")));
+		
+		this.biggerX = PositiveLocation.bigger(loc1.getX(), loc2.getX());
+		this.smallerX = PositiveLocation.smaller(loc1.getX(), loc2.getX());
+		this.biggerZ = PositiveLocation.bigger(loc1.getZ(), loc2.getZ());
+		this.smallerZ = PositiveLocation.smaller(loc1.getZ(), loc2.getZ());
+		
+		int y = loc1.getY();
+		
+		left_up = new PositiveLocation(
+				smallerX,
+				y,
+				biggerZ
+				);
+		
+		left_down = new PositiveLocation(
+				smallerX,
+				y,
+				smallerZ
+				);
+		
+		right_up = new PositiveLocation(
+				biggerX,
+				y,
+				biggerZ
+				);
+		
+		right_down = new PositiveLocation(
+				biggerX,
+				y,
+				smallerZ
+				);
+		
+		center = new PositiveLocation(
+				biggerX/2,
+				y,
+				biggerZ/2
+				);
+		
+		this.width = right_down.getPositiveX() - left_down.getPositiveX();
+		this.lenght = left_up.getPositiveZ() - left_down.getPositiveZ();
+		
 		this.flags.addAll(Arrays.asList(prop.getArray("flags")));
 		if (id >= 0) {
 			save();
@@ -89,13 +212,13 @@ public final class Claim {
 		Node loc1 = prop.getNode("loc1");
 		Node loc2 = prop.getNode("loc2");
 		
-		loc1.setField("x", Integer.toString(this.loc1.getX()));
-		loc1.setField("y", Integer.toString(this.loc1.getY()));
-		loc1.setField("z", Integer.toString(this.loc1.getZ()));
+		loc1.setField("x", Integer.toString(this.left_up.getX()));
+		loc1.setField("y", Integer.toString(this.left_up.getY()));
+		loc1.setField("z", Integer.toString(this.left_up.getZ()));
 		
-		loc2.setField("x", Integer.toString(this.loc2.getX()));
-		loc2.setField("y", Integer.toString(this.loc2.getY()));
-		loc2.setField("z", Integer.toString(this.loc2.getZ()));
+		loc2.setField("x", Integer.toString(this.right_down.getX()));
+		loc2.setField("y", Integer.toString(this.right_down.getY()));
+		loc2.setField("z", Integer.toString(this.right_down.getZ()));
 		
 		prop.setNode("loc1", loc1);
 		prop.setNode("loc2", loc2);
@@ -116,38 +239,34 @@ public final class Claim {
 	
 	public void makeFences() {
 		WorldServer w = Util.getWorld(getWorld());
-		int biggerX = getDownRightCorner().getX();
-		int smallX = getDownLeftCorner().getX();
-		int smallZ = getDownLeftCorner().getZ();
-		int biggerZ = getUpperLeftCorner().getZ();
-		for (int x = smallX; x < biggerX; x++) {
-            int highY = Util.getHighestYAt(x, smallZ, w);
-            w.setBlock(x, highY, smallZ, Block.getBlockById(85));
+		for (int x = smallerX; x < biggerX; x++) {
+            int highY = Util.getHighestYAt(x, smallerZ, w);
+            w.setBlock(x, highY, smallerZ, Block.getBlockById(85));
         }
-        for (int x = smallX; x < biggerX; x++) {
-        	int highY = Util.getHighestYAt(x, smallZ, w);
+        for (int x = smallerX; x < biggerX; x++) {
+        	int highY = Util.getHighestYAt(x, smallerZ, w);
             w.setBlock(x, highY, biggerZ, Block.getBlockById(85));
         }
-        for (int z = smallZ; z < biggerZ; z++) {
-        	int highY = Util.getHighestYAt(smallX, z, w);
-            w.setBlock(smallX, highY, z, Block.getBlockById(85));
+        for (int z = smallerZ; z < biggerZ; z++) {
+        	int highY = Util.getHighestYAt(smallerX, z, w);
+            w.setBlock(smallerX, highY, z, Block.getBlockById(85));
         }
-        for (int z = smallZ; z < biggerZ; z++) {
+        for (int z = smallerZ; z < biggerZ; z++) {
         	int highY = Util.getHighestYAt(biggerX, z, w);
             w.setBlock(biggerX, highY, z, Block.getBlockById(85));
         }
         int highY = Util.getHighestYAt(biggerX, biggerZ, w);
         w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(85));
-        highY = Util.getHighestYAt(smallX, smallZ, w);
-        w.setBlock(smallX, highY, smallZ, Block.getBlockById(85));
+        highY = Util.getHighestYAt(smallerX, smallerZ, w);
+        w.setBlock(smallerX, highY, smallerZ, Block.getBlockById(85));
 	}
 	
 	public PositiveLocation getLocation1() {
-		return loc1;
+		return left_up;
 	}
 	
 	public PositiveLocation getLocation2() {
-		return loc2;
+		return right_down;
 	}
 	
 	public String getOwner() {
@@ -195,11 +314,11 @@ public final class Claim {
 	}
 	
 	public int getWidth() {
-		return loc1.distanceX(loc2);
+		return width;
 	}
 	
 	public int getLenght() {
-		return loc1.distanceZ(loc2);
+		return lenght;
 	}
 	
 	public int getSize() {
@@ -207,19 +326,19 @@ public final class Claim {
 	}
 	
 	public PositiveLocation getUpperLeftCorner() {
-		return getCenter().add(getWidth()/2 * -1, 0, getLenght()/2);
+		return left_up;
 	}
 	
 	public PositiveLocation getUpperRightCorner() {
-		return getCenter().add(getWidth()/2, 0, getLenght()/2);
+		return right_up;
 	}
 	
 	public PositiveLocation getDownRightCorner() {
-		return getCenter().add(getWidth()/2, 0, getLenght()/2 * -1);
+		return right_down;
 	}
 	
 	public PositiveLocation getDownLeftCorner() {
-		return getCenter().add(getWidth()/2 * -1, 0, getLenght()/2 * -1);
+		return left_down;
 	}
 	
 	public int getHypotenuse() {
@@ -227,41 +346,29 @@ public final class Claim {
 	}
 	
 	public PositiveLocation getCenter() {
-		if (center != null) {
-			return center;
-		}
-		center = new PositiveLocation(
-				(PositiveLocation.bigger(loc1.getPositiveX(), loc2.getPositiveX())-(getWidth()/2))-PositiveLocation.MAX,
-				loc1.getY(),
-				(PositiveLocation.bigger(loc1.getPositiveZ(), loc2.getPositiveZ())-(getLenght()/2))-PositiveLocation.MAX);
 		return center;
 	}
 	
 	public int distanceXZ(PositiveLocation point) {
-		if (PositiveLocation.insideXZ(loc1, loc2, point)) {
+		if (PositiveLocation.insideXZ(left_up, right_down, point)) {
             return 0;
         }
         int x = point.getX();
         int z = point.getZ();
         
-        int smallX = PositiveLocation.smaller(loc1.getX(), loc2.getX());
-        int biggerX = PositiveLocation.bigger(loc1.getX(), loc2.getX());
         
-        int smallZ = PositiveLocation.smaller(loc1.getZ(), loc2.getX());
-        int biggerZ = PositiveLocation.bigger(loc1.getZ(), loc2.getZ());
-        
-        if (x > smallX && x < biggerX) {
-            if (z > smallZ) {
+        if (x > smallerX && x < biggerX) {
+            if (z > smallerZ) {
                 return PositiveLocation.pos(z - biggerZ);
             } else {
-                return PositiveLocation.pos(z - smallZ);
+                return PositiveLocation.pos(z - smallerZ);
             }
         }
-        if (z > smallZ && z < biggerZ) {
-            if (x > smallX) {
+        if (z > smallerZ && z < biggerZ) {
+            if (x > smallerX) {
                 return PositiveLocation.pos(x - biggerX);
             } else {
-                return PositiveLocation.pos(x - smallX);
+                return PositiveLocation.pos(x - smallerX);
             }
         }
         boolean right = false;
@@ -277,23 +384,23 @@ public final class Claim {
         if (up) {
             z1 = biggerZ;
         } else {
-            z1 = smallZ;
+            z1 = smallerZ;
         }
         if (right) {
             x1 = biggerX;
         } else {
-            x1 = smallX;
+            x1 = smallerX;
         }
         PositiveLocation p = new PositiveLocation(x1, 0, z1);
         return new Claim(p, point, null, null, -1).getHypotenuse();
 	}
 	
 	public boolean isInside(EntityPlayerMP player) {
-		return PositiveLocation.insideXZ(loc1, loc2, new PositiveLocation((int)player.posX, 0, (int)player.posZ));
+		return PositiveLocation.insideXZ(left_up, right_down, new PositiveLocation((int)player.posX, 0, (int)player.posZ));
 	}
 	
 	public boolean isInside(PositiveLocation loc) {
-		return PositiveLocation.insideXZ(loc1, loc2, loc);
+		return PositiveLocation.insideXZ(left_up, right_down, loc);
 	}
 	
 	public boolean isInside(String player) {
