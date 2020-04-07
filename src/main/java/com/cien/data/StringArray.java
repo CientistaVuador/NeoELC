@@ -82,6 +82,9 @@ public class StringArray {
 			}
 			throw new RuntimeException("Invalid char '"+c+"'");
 		}
+		if (b.length() > 0) {
+			strings.add(b.toString());
+		}
 		return strings.toArray(new String[strings.size()]);
 	}
 

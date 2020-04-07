@@ -56,8 +56,13 @@ public class Claim extends CienCommandBase {
 				return;
 			}
 		}
+		if (CienClaims.CLAIMS.getBlocksOf(player.getCommandSenderName()) - claim.getSize() < 0) {
+			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Blocos insuficientes. (Necessário "+claim.getSize()+")")));
+			return;
+		}
 		CienClaims.CLAIMS.addClaim(claim);
-		claim.makeFences();
+		CienClaims.CLAIMS.removeBlocksOf(player.getCommandSenderName(), claim.getSize());
+		claim.makeFencesAndSave();
 		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Claim Criado com Sucesso!")));
 	}
 
