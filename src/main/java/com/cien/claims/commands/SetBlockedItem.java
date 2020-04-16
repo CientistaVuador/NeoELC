@@ -7,7 +7,6 @@ import com.cien.permissions.CienPermissions;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 
@@ -28,11 +27,11 @@ public class SetBlockedItem extends CienCommandBase {
 				return;
 			}
 			boolean blocked = false;
-			if (!CienClaims.CLAIMS.hasBlockedItem(Item.getIdFromItem(hand.getItem())+":"+hand.getItemDamage())) {
+			if (!CienClaims.CLAIMS.hasBlockedItem(Util.getItemNameID(hand.getItem())+":"+hand.getItemDamage())) {
 				blocked = true;
-				CienClaims.CLAIMS.setBlockedItem(Item.getIdFromItem(hand.getItem())+":"+hand.getItemDamage(), true);
+				CienClaims.CLAIMS.setBlockedItem(Util.getItemNameID(hand.getItem())+":"+hand.getItemDamage(), true);
 			} else {
-				CienClaims.CLAIMS.setBlockedItem(Item.getIdFromItem(hand.getItem())+":"+hand.getItemDamage(), false);
+				CienClaims.CLAIMS.setBlockedItem(Util.getItemNameID(hand.getItem())+":"+hand.getItemDamage(), false);
 			}
 			if (blocked) {
 				player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Item Bloqueado Com Sucesso!")));

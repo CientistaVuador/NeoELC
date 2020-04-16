@@ -35,6 +35,7 @@ import com.cien.claims.commands.VerFlags;
 import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
+import com.cien.kits.CienKits;
 import com.cien.login.CienLogin;
 import com.cien.login.commands.Login;
 import com.cien.login.commands.Register;
@@ -75,6 +76,7 @@ public class NeoELC {
 	long lastTime = 0;
 	int ticks = 0;
 	boolean ok = false;
+	boolean utilStarted = false;
 	
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -102,6 +104,10 @@ public class NeoELC {
         //CienClaims
         FMLCommonHandler.instance().bus().register(CienClaims.CLAIMS);
         MinecraftForge.EVENT_BUS.register(CienClaims.CLAIMS);
+        
+        //CienKits
+        FMLCommonHandler.instance().bus().register(CienKits.KITS);
+        MinecraftForge.EVENT_BUS.register(CienKits.KITS);
         
     }
     
@@ -143,6 +149,7 @@ public class NeoELC {
     	event.registerServerCommand(new Staff());
     	event.registerServerCommand(new Privado());
     	event.registerServerCommand(new Responder());
+    	event.registerServerCommand(new com.cien.chat.commands.Item());
     	
     	//CienClaims
     	event.registerServerCommand(new Blocks());
@@ -166,6 +173,8 @@ public class NeoELC {
     	event.registerServerCommand(new Trust());
     	event.registerServerCommand(new ETrust());
     	event.registerServerCommand(new Untrust());
+    	
+    	//CienKits
     }
     
     @EventHandler
@@ -191,6 +200,10 @@ public class NeoELC {
     
     @SubscribeEvent
     public void serverTick(ServerTickEvent event) {
+    	if (!utilStarted) {
+    		utilStarted = true;
+    		Util.load();
+    	}
     	//Cut the tick rate by half
     	if (ok) {
     		ok = false;

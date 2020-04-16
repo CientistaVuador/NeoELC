@@ -435,7 +435,7 @@ public class CienClaims {
 			return;
 		}
 		ItemStack hand = player.getCurrentEquippedItem();
-		if (!CienClaims.CLAIMS.hasBlockedItem(Item.getIdFromItem(hand.getItem())+":"+hand.getItemDamage())) {
+		if (!CienClaims.CLAIMS.hasBlockedItem(Util.getItemNameID(hand.getItem())+":"+hand.getItemDamage())) {
 			return;
 		}
 		for (Claim claim:CienClaims.CLAIMS.getClaims()) {

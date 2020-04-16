@@ -1,12 +1,20 @@
 package com.cien;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.cien.data.Node;
 import com.cien.data.Properties;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
@@ -18,6 +26,63 @@ public class Util {
 	protected static List<Task> tasks = new ArrayList<>();
 	protected static List<ScheduledTask> scheduled = new ArrayList<>();
 	protected static int TPS = 0;
+	protected static Map<String, Item> items = new HashMap<>();
+	
+	protected static void load() {
+		System.out.println("Carregando nome de itens...");
+		for (int i = 0; i < Short.MAX_VALUE; i++) {
+			Item t = Item.getItemById(i);
+			if (t != null) {
+				String name = Item.itemRegistry.getNameForObject(t);
+				items.put(name, t);
+				System.out.println("Item  de ID "+i+" registrado como '"+name+"'");
+			}
+		}
+		System.out.println("Nome de itens carregados.");
+	}
+	
+	public static Node getNodeFromItemStack(String name, ItemStack s, boolean keepNbt) {
+		Node n = new Node(name);
+		n.setField("id", Util.getItemNameID(s.getItem()));
+		n.setField("meta", Integer.toString(s.getItemDamage()));
+		n.setField("amount", Integer.toString(s.stackSize));
+		if (keepNbt) {
+			if (s.getTagCompound() != null) {
+				n.setField("nbt", s.getTagCompound().toString());
+			} else {
+				n.setField("nbt", "{}");
+			}
+		} else {
+			n.setField("nbt", "{}");
+		}
+		return n;
+	}
+	
+	public static ItemStack getItemStackFromNode(Node n) {
+		Item t = Util.getItemFromNameID(n.getField("id"));
+		int meta = Integer.parseInt(n.getField("meta"));
+		int amount = Integer.parseInt(n.getField("amount"));
+		String nbt = n.getField("nbt");
+		ItemStack s = new ItemStack(t, amount, meta);
+		try {
+			s.setTagCompound((NBTTagCompound) JsonToNBT.func_150315_a(nbt));
+		} catch (NBTException e) {
+			e.printStackTrace();
+		}
+		return s;
+	}
+	
+	public static String getItemNameID(Item t) {
+		return Item.itemRegistry.getNameForObject(t);
+	}
+	
+	public static Item getItemFromNameID(String id) {
+		Item t = items.get(id);
+		if (t == null) {
+			throw new InvalidItemNameID("Nome ID de Item Inválido -> '"+id+"', cheque configurações ou verifique se algum mod foi removido.");
+		}
+		return t;
+	}
 	
 	public static Task run(String name, Runnable r, int ticks) {
 		Task t = new Task(name, r, ticks);
