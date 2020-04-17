@@ -134,86 +134,58 @@ public class Node {
         boolean quote = false;
         StringBuilder b = new StringBuilder(128);
         String name = null;
-        boolean fieldOrNode = false;
-        boolean comma = false;
-
+        boolean equals = false;
+        
         while (s.hasNext()) {
             char c = s.current();
             chars++;
             s.next();
-            if (escape && quote) {
-                b.append(c);
-                escape = false;
-                continue;
+            if (escape) {
+            	b.append(c);
+            	escape = false;
+            	continue;
             }
-            if (c == '\\' && quote) {
-                escape = true;
-                continue;
+            if (c == '\\') {
+            	escape = true;
+            	continue;
             }
             if (c == '"') {
-                quote = !quote;
-                if (!quote) {
-                    if (!fieldOrNode) {
-                        name = b.toString();
-                        b.setLength(0);
-                    } else {
-                        n.setField(name, b.toString());
-                        b.setLength(0);
-                        name = null;
-                        comma = true;
-                    }
-                }
-                if (quote) {
-                    if (comma) {
-                        throw new RuntimeException("Expected ',' at '"+name+"' in '"+n.name+"'");
-                    }
-                    if (name != null && !fieldOrNode) {
-                        throw new RuntimeException("Expected '<' or '=' at '"+name+"' in '"+n.name+"'");
-                    }
-                }
-                continue;
+            	quote = !quote;
+            	if (!quote && equals) {
+            		equals = false;
+            		n.setField(name, b.toString());
+            		name = null;
+            		b.setLength(0);
+            		chars = 0;
+            	}
+            	continue;
             }
             if (quote) {
-                b.append(c);
-                continue;
+            	b.append(c);
+            	continue;
             }
             if (c == '=') {
-                fieldOrNode = true;
-                continue;
-            }
-            switch (c) {
-                case '\t':
-                case '\n':
-                case ' ':
-                case '\r':
-                    continue;
+            	equals = true;
+            	name = b.toString();
+            	b.setLength(0);
+            	continue;
             }
             if (c == '<') {
-                if (n.name == null) {
-                    n.name = name;
-                    name = null;
-                    chars = 0;
-                } else {
-                    s.back(chars);
-                    n.addNode(parse(s));
-                    chars = 0;
-                }
-                continue;
+            	if (n.name == null) {
+            		n.name = b.toString();
+            		b.setLength(0);
+            		chars = 0;
+            	} else {
+            		s.back(chars);
+            		n.addNode(parse(s));
+            		chars = 0;
+            		b.setLength(0);
+            	}
+            	continue;
             }
             if (c == '>') {
-                break;
+            	break;
             }
-            if (comma) {
-                if (c == ',') {
-                    comma = false;
-                    fieldOrNode = false;
-                    chars = 0;
-                    continue;
-                } else {
-                    throw new RuntimeException("Expected ',' at '"+name+"' in '"+n.name+"'");
-                }
-            }
-            throw new RuntimeException("Invalid char '"+c+"' at '"+name+"' in '"+n.name+"'");
         }
         return n;
     }

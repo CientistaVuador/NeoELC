@@ -221,7 +221,7 @@ public final class Properties {
 				return new Node(key);
 			}
 			return n;
-		} catch (Exception ex) {
+		} catch (NullPointerException ex) {
 			return new Node(key);
 		}
 	}

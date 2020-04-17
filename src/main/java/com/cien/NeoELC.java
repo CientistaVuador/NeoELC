@@ -36,6 +36,7 @@ import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
 import com.cien.kits.CienKits;
+import com.cien.kits.commands.KitBuilder;
 import com.cien.login.CienLogin;
 import com.cien.login.commands.Login;
 import com.cien.login.commands.Register;
@@ -149,7 +150,6 @@ public class NeoELC {
     	event.registerServerCommand(new Staff());
     	event.registerServerCommand(new Privado());
     	event.registerServerCommand(new Responder());
-    	event.registerServerCommand(new com.cien.chat.commands.Item());
     	
     	//CienClaims
     	event.registerServerCommand(new Blocks());
@@ -175,6 +175,8 @@ public class NeoELC {
     	event.registerServerCommand(new Untrust());
     	
     	//CienKits
+    	event.registerServerCommand(new KitBuilder());
+    	event.registerServerCommand(new com.cien.kits.commands.Kit());
     }
     
     @EventHandler
