@@ -110,6 +110,7 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienKits.KITS);
         MinecraftForge.EVENT_BUS.register(CienKits.KITS);
         
+        
     }
     
     @EventHandler

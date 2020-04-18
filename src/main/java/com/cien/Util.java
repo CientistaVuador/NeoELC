@@ -1,9 +1,18 @@
 package com.cien;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.cien.data.Node;
 import com.cien.data.Properties;
@@ -17,6 +26,8 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.StatCollector;
+import net.minecraft.util.StringTranslate;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -27,6 +38,7 @@ public class Util {
 	protected static List<ScheduledTask> scheduled = new ArrayList<>();
 	protected static int TPS = 0;
 	protected static Map<String, Item> items = new HashMap<>();
+	protected static Map<String, String> ptBr = new HashMap<>();
 	
 	protected static void load() {
 		System.out.println("Carregando nome de itens...");
@@ -39,6 +51,107 @@ public class Util {
 			}
 		}
 		System.out.println("Nome de itens carregados.");
+		loadPortuguese();
+	}
+	
+	private static void loadPortuguese() {
+		System.out.println("Carregando arquivos de linguagem.");
+		File mods = new File("mods");
+		long tamanho = 0;
+		if (mods.exists() && mods.isDirectory()) {
+			File[] files = mods.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					if (pathname.isFile()) {
+						return pathname.getName().endsWith(".jar");
+					}
+					return false;
+				}
+			});
+			for (File mod:files) {
+				int carregado = 0;
+				System.out.println("Procurando arquivos de linguagem em '"+mod.getName()+"'");
+				try {
+					ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(mod)));
+					ZipEntry entry;
+					while ((entry = zip.getNextEntry()) != null) {
+						if (entry.getName().endsWith("pt_BR.lang")) {
+							BufferedReader reader = new BufferedReader(new InputStreamReader(zip, "UTF-8"));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								if (!line.startsWith("//")) {
+									String entryName = null;
+									StringBuilder builder = new StringBuilder(64);
+									boolean equals = false;
+									for (char c:line.toCharArray()) {
+										if (c == '=' && !equals) {
+											equals = true;
+											entryName = builder.toString();
+											builder.setLength(0);
+											continue;
+										}
+										builder.append(c);
+									}
+									String value = builder.toString();
+									if (entryName != null && value.length() != 0) {
+										carregado++;
+										tamanho += entryName.getBytes().length;
+										tamanho += value.getBytes().length;
+										System.out.println("Entrada '"+entryName+"' definida como '"+value+"'");
+										ptBr.put(entryName, value);
+									}
+								}
+							}
+						}
+					}
+					zip.close();
+				} catch (Exception ex) {
+					System.out.println("Erro ao abrir '"+mod.getName()+"': "+ex.getMessage());
+					ex.printStackTrace();
+				}
+				System.out.println(carregado+" Entradas de linguagem carregadas de '"+mod.getName()+"'");
+			}
+		}
+		System.out.println(tamanho+" Bytes de memória estão sendo ocupados pela linguagem.");
+		System.out.println("Arquivos de linguagem carregados.");
+		System.out.println("Alterando o StatCollector através de reflection...");
+		boolean sucesso = true;
+		try {
+			Field stringTranslate = StatCollector.class.getDeclaredField("localizedName");
+			stringTranslate.setAccessible(true);
+			PortugueseStringTranslate.FALLBACK = (StringTranslate) stringTranslate.get(null);
+			stringTranslate.set(null, PortugueseStringTranslate.PORTUGUESE);
+		} catch (Exception ex) {
+			sucesso = false;
+			System.out.println("Não foi possível alterar o StatCollector: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+		if (sucesso) {
+			System.out.println("Sucesso!");
+		}
+	}
+	
+	public static String translateUnlocalizedToPortuguese(String unlocalized) {
+		return ptBr.get(unlocalized);
+	}
+	
+	public static boolean containsUnlocalizedPortuguese(String unlocalized) {
+		return ptBr.containsKey(unlocalized);
+	}
+	
+	public static String getPortugueseItemName(ItemStack stack) {
+		String pt = translateUnlocalizedToPortuguese(stack.getUnlocalizedName());
+		if (pt == null) {
+			pt = translateUnlocalizedToPortuguese(stack.getUnlocalizedName()+".name");
+		}
+		if (pt == null) {
+			pt = getEnglishItemName(stack);
+		}
+		return pt;
+	}
+	
+	public static String getEnglishItemName(ItemStack stack) {
+		return StatCollector.translateToFallback(stack.getUnlocalizedName()+".name");
 	}
 	
 	public static Node getNodeFromItemStack(String name, ItemStack s, boolean keepNbt) {
