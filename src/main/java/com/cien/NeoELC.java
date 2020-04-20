@@ -35,6 +35,11 @@ import com.cien.claims.commands.VerFlags;
 import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
+import com.cien.economy.CienEconomy;
+import com.cien.economy.commands.Eco;
+import com.cien.economy.commands.Enviar;
+import com.cien.economy.commands.Money;
+import com.cien.economy.commands.Top;
 import com.cien.kits.CienKits;
 import com.cien.kits.commands.KitBuilder;
 import com.cien.login.CienLogin;
@@ -110,7 +115,9 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienKits.KITS);
         MinecraftForge.EVENT_BUS.register(CienKits.KITS);
         
-        
+        //CienEconomy
+        FMLCommonHandler.instance().bus().register(CienEconomy.ECONOMY);
+        MinecraftForge.EVENT_BUS.register(CienEconomy.ECONOMY);
     }
     
     @EventHandler
@@ -178,6 +185,12 @@ public class NeoELC {
     	//CienKits
     	event.registerServerCommand(new KitBuilder());
     	event.registerServerCommand(new com.cien.kits.commands.Kit());
+    	
+    	//CienEconomy
+    	event.registerServerCommand(new Money());
+    	event.registerServerCommand(new Enviar());
+    	event.registerServerCommand(new Eco());
+    	event.registerServerCommand(new Top());
     }
     
     @EventHandler

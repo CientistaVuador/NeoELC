@@ -7,30 +7,33 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import com.cien.data.Node;
 import com.cien.data.Properties;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringTranslate;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import scala.actors.threadpool.Arrays;
 
 public class Util {
 	
@@ -39,6 +42,7 @@ public class Util {
 	protected static int TPS = 0;
 	protected static Map<String, Item> items = new HashMap<>();
 	protected static Map<String, String> ptBr = new HashMap<>();
+	protected static Map<String, String> ptBrCache = new HashMap<>();
 	
 	protected static void load() {
 		System.out.println("Carregando nome de itens...");
@@ -114,44 +118,246 @@ public class Util {
 		}
 		System.out.println(tamanho+" Bytes de memória estão sendo ocupados pela linguagem.");
 		System.out.println("Arquivos de linguagem carregados.");
-		System.out.println("Alterando o StatCollector através de reflection...");
+		System.out.println("Alterando o StatCollector através de reflection para português.");
 		boolean sucesso = true;
 		try {
-			Field stringTranslate = StatCollector.class.getDeclaredField("localizedName");
-			stringTranslate.setAccessible(true);
-			PortugueseStringTranslate.FALLBACK = (StringTranslate) stringTranslate.get(null);
-			stringTranslate.set(null, PortugueseStringTranslate.PORTUGUESE);
+			Field[] stringTranslateFields = StringTranslate.class.getDeclaredFields();
+			StringTranslate fallback = null;
+			for (Field f:stringTranslateFields) {
+				f.setAccessible(true);
+				if (Modifier.isStatic(f.getModifiers())) {
+					Object obj = f.get(null);
+					if (obj.getClass() == StringTranslate.class) {
+						fallback = (StringTranslate) obj;
+						break;
+					}
+				}
+			}
+			if (fallback == null) {
+				throw new NullPointerException("Instância do StringTranslate não encontrada.");
+			}
+			Field[] statCollectorFields = StatCollector.class.getDeclaredFields();
+			Field statCollector = null;
+			for (Field f:statCollectorFields) {
+				f.setAccessible(true);
+				if (Modifier.isStatic(f.getModifiers())) {
+					if (f.get(null) == fallback) {
+						statCollector = f;
+						break;
+					}
+				}
+			}
+			if (statCollector == null) {
+				throw new NullPointerException("Campo StringTranslate do StatCollector não encontrado.");
+			}
+			statCollector.set(null, PortugueseStringTranslate.PORTUGUESE);
+			PortugueseStringTranslate.FALLBACK = fallback;
 		} catch (Exception ex) {
 			sucesso = false;
 			System.out.println("Não foi possível alterar o StatCollector: "+ex.getMessage());
 			ex.printStackTrace();
 		}
 		if (sucesso) {
-			System.out.println("Sucesso!");
+			System.out.println("StatCollector alterado para Português.");
 		}
 	}
 	
+	public static int getPlayerDirection(EntityPlayerMP player) {
+		return MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+	}
+	
+	public static int getPlayerDirectionReversed(EntityPlayerMP player) {
+		int dir = getPlayerDirection(player);
+		switch (dir) {
+		case 0:
+			return 2;
+		case 1:
+			return 3;
+		case 2:
+			return 0;
+		case 3:
+			return 1;
+		}
+		return 0;
+	}
+	
+	public static int convertPlayerDirectionToSignRotation(int dir) {
+		switch (dir) {
+		case 0:
+			return 0;
+		case 1:
+			return 4;
+		case 2:
+			return 8;
+		case 3:
+			return 12;
+		}
+		return 0;
+	}
+	
+	public static int convertPlayerDirectionToChestRotation(int dir) {
+		switch (dir) {
+		case 0:
+			return 0;
+		case 1:
+			return 4;
+		case 2:
+			return 2;
+		case 3:
+			return 5;
+		}
+		return 0;
+	}
+	
 	public static String translateUnlocalizedToPortuguese(String unlocalized) {
-		return ptBr.get(unlocalized);
+		String value = ptBrCache.get(unlocalized);
+		if (value == null) {
+			value = ptBr.get(unlocalized);
+			if (value != null) {
+				ptBrCache.put(unlocalized, value);
+			}
+		}
+		return value;
 	}
 	
 	public static boolean containsUnlocalizedPortuguese(String unlocalized) {
 		return ptBr.containsKey(unlocalized);
 	}
 	
+	public static int convertChestRotationToSignRotation(int chest) {
+		switch (chest) {
+		case 0:
+			return 0;
+		case 4:
+			return 4;
+		case 2:
+			return 8;
+		case 5:
+			return 12;
+		}
+		return 0;
+	}
+	
+	
+	public static void placeChest(World w, int x, int y, int z, int rotation, boolean trapped) {
+		if (trapped) {
+			w.setBlock(x, y, z, Blocks.trapped_chest, 0, 2);
+		} else {
+			w.setBlock(x, y, z, Blocks.chest, 0, 2);
+		}
+		w.setBlockMetadataWithNotify(x, y, z, rotation, 2);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static int placeSign(World world, int x, int y, int z, int rotation, String line1, String line2, String line3, String line4) {
+		world.setBlock(x, y, z, Blocks.standing_sign, rotation, 2);
+		TileEntitySign sign = (TileEntitySign) world.getTileEntity(x, y, z);
+		String[] line1Formatted = Util.signSplit(line1);
+		String[] line2Formatted = Util.signSplit(line2);
+		String[] line3Formatted = Util.signSplit(line3);
+		String[] line4Formatted = Util.signSplit(line4);
+		
+		List<String> allLines = new ArrayList<>();
+		allLines.addAll(Arrays.asList(line1Formatted));
+		allLines.addAll(Arrays.asList(line2Formatted));
+		allLines.addAll(Arrays.asList(line3Formatted));
+		allLines.addAll(Arrays.asList(line4Formatted));
+		
+		String[] result = new String[4];
+		for (int i = 0; i < 4; i++) {
+			if (i > (allLines.size() - 1)) {
+				result[i] = "";
+				continue;
+			}
+			result[i] = allLines.get(i);
+		}
+		int skipped = allLines.size() - 4;
+		if (skipped < 0) {
+			skipped = 0;
+		}
+		
+		sign.signText = result;
+		sign.updateEntity();
+		
+		return skipped;
+	}
+	
+	public static String[] signSplit(String text) {
+		List<String> words = new ArrayList<>();
+		StringBuilder builder = new StringBuilder(text.length());
+		for (char c:text.toCharArray()) {
+			if (c == ' ') {
+				if (builder.length() != 0) {
+					words.add(builder.toString());
+					builder.setLength(0);
+				}
+				continue;
+			}
+			builder.append(c);
+		}
+		if (builder.length() != 0) {
+			words.add(builder.toString());
+		}
+		List<String> list = new ArrayList<>();
+		StringBuilder b = new StringBuilder(text.length());
+		int spaceLeft = 15;
+		for (int i = 0; i < words.size(); i++) {
+			String word = words.get(i);
+			if (word.length() > 15) {
+				if (spaceLeft == 0) {
+					i -= 1;
+					list.add(b.toString());
+					b.setLength(0);
+					spaceLeft = 15;
+					continue;
+				}
+				for (char c:word.toCharArray()) {
+					if (spaceLeft == 0) {
+						list.add(b.toString());
+						b.setLength(0);
+						spaceLeft = 15;
+					}
+					b.append(c);
+					spaceLeft -= 1;
+				}
+				continue;
+			}
+			if ((spaceLeft - word.length()) >= 0) {
+				b.append(word);
+				spaceLeft -= word.length();
+				if (i != (words.size() - 1) && spaceLeft != 0) {
+					String next = null;
+					if (words.size() > (i + 1)) {
+						next = words.get(i + 1);
+					}
+					if (next != null && (spaceLeft - (next.length() + 1)) >= 0) {
+						b.append(' ');
+						spaceLeft -= 1;
+					}
+				}
+			} else {
+				list.add(b.toString());
+				b.setLength(0);
+				spaceLeft = 15;
+				i -= 1;
+			}
+		}
+		if (b.length() != 0) {
+			list.add(b.toString());
+		}
+		return list.toArray(new String[list.size()]);
+	}
+	
 	public static String getPortugueseItemName(ItemStack stack) {
-		String pt = translateUnlocalizedToPortuguese(stack.getUnlocalizedName());
-		if (pt == null) {
-			pt = translateUnlocalizedToPortuguese(stack.getUnlocalizedName()+".name");
-		}
-		if (pt == null) {
-			pt = getEnglishItemName(stack);
-		}
-		return pt;
+		return stack.getDisplayName();
 	}
 	
 	public static String getEnglishItemName(ItemStack stack) {
-		return StatCollector.translateToFallback(stack.getUnlocalizedName()+".name");
+		return PortugueseStringTranslate.FALLBACK.translateKey(stack.getUnlocalizedName()+".name");
+	}
+	
+	public static void sendMessage(EntityPlayerMP player, String msg) {
+		player.addChatMessage(new ChatComponentText(Util.fixColors(msg)));
 	}
 	
 	public static Node getNodeFromItemStack(String name, ItemStack s, boolean keepNbt) {
