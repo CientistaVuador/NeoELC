@@ -33,7 +33,6 @@ import net.minecraft.util.StringTranslate;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
-import scala.actors.threadpool.Arrays;
 
 public class Util {
 	
@@ -224,6 +223,23 @@ public class Util {
 		return ptBr.containsKey(unlocalized);
 	}
 	
+	public static boolean itemStackEquals(ItemStack a, ItemStack b) {
+		if (a.getItemDamage() == b.getItemDamage()) {
+			if (Item.getIdFromItem(a.getItem()) == Item.getIdFromItem(b.getItem())) {
+				NBTTagCompound itemNbt = a.getTagCompound();
+				NBTTagCompound compareNbt = b.getTagCompound();
+				if (itemNbt == compareNbt) {
+					return true;
+				}
+				if (itemNbt == null || compareNbt == null) {
+					return false;
+				}
+				return itemNbt.equals(compareNbt);
+			}
+		}
+		return false;
+	}
+	
 	public static int convertChestRotationToSignRotation(int chest) {
 		switch (chest) {
 		case 0:
@@ -248,38 +264,14 @@ public class Util {
 		w.setBlockMetadataWithNotify(x, y, z, rotation, 2);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static int placeSign(World world, int x, int y, int z, int rotation, String line1, String line2, String line3, String line4) {
+	public static void placeSign(World world, int x, int y, int z, int rotation, String line1, String line2, String line3, String line4) {
 		world.setBlock(x, y, z, Blocks.standing_sign, rotation, 2);
 		TileEntitySign sign = (TileEntitySign) world.getTileEntity(x, y, z);
-		String[] line1Formatted = Util.signSplit(line1);
-		String[] line2Formatted = Util.signSplit(line2);
-		String[] line3Formatted = Util.signSplit(line3);
-		String[] line4Formatted = Util.signSplit(line4);
 		
-		List<String> allLines = new ArrayList<>();
-		allLines.addAll(Arrays.asList(line1Formatted));
-		allLines.addAll(Arrays.asList(line2Formatted));
-		allLines.addAll(Arrays.asList(line3Formatted));
-		allLines.addAll(Arrays.asList(line4Formatted));
-		
-		String[] result = new String[4];
-		for (int i = 0; i < 4; i++) {
-			if (i > (allLines.size() - 1)) {
-				result[i] = "";
-				continue;
-			}
-			result[i] = allLines.get(i);
-		}
-		int skipped = allLines.size() - 4;
-		if (skipped < 0) {
-			skipped = 0;
-		}
+		String[] result = {line1, line2, line3, line4};
 		
 		sign.signText = result;
 		sign.updateEntity();
-		
-		return skipped;
 	}
 	
 	public static String[] signSplit(String text) {

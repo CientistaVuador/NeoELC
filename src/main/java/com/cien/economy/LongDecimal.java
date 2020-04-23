@@ -21,6 +21,10 @@ public final class LongDecimal extends Number {
 		return new LongDecimal(this.value + l.value);
 	}
 	
+	public boolean isZero() {
+		return value == 0;
+	}
+	
 	public LongDecimal minus(LongDecimal l) {
 		return new LongDecimal(this.value - l.value);
 	}
@@ -65,6 +69,96 @@ public final class LongDecimal extends Number {
 			return true;
 		}
 		return false;
+	}
+	
+	public String toMinimizedString() {
+		String mini = toFormattedString();
+		if (mini.length() <= 10) {
+			return mini;
+		}
+		char[] chars = mini.toCharArray();
+		char[] reversed = new char[chars.length];
+		for (int i = 0; i < chars.length; i++) {
+			reversed[(reversed.length - 1) - i] = chars[i];
+		}
+		int cas = 0;
+		boolean comma = false;
+		StringBuilder b = new StringBuilder(3);
+		for (int i = 0; i < reversed.length; i++) {
+			if (reversed[i] == ',') {
+				comma = true;
+				continue;
+			}
+			if (!comma) {
+				continue;
+			}
+			if (reversed[i] == '.') {
+				cas++;
+				b.setLength(0);
+				continue;
+			}
+			b.append(reversed[i]);
+		}
+		char[] bChars = b.toString().toCharArray();
+		char[] bReversed = new char[bChars.length];
+		for (int i = 0; i < bReversed.length; i++) {
+			bReversed[(bReversed.length - 1) - i] = bChars[i];
+		}
+		String minimized = new String(bReversed);
+		String unit = " ?";
+		switch (cas) {
+		case 1:
+			unit = " Mil";
+			break;
+		case 2:
+			unit = " M";
+			break;
+		case 3:
+			unit = " Bi";
+			break;
+		case 4:
+			unit = " Tri";
+			break;
+		case 5:
+			unit = " Quatri";
+			break;
+		}
+		return minimized+unit;
+	}
+	
+	public String toFormattedString() {
+		String t = toString();
+		char[] f = t.toCharArray();
+		char[] reversed = new char[f.length];
+		for (int i = 0; i < f.length; i++) {
+			reversed[(f.length - 1) - i] = f[i];
+		}
+		StringBuilder b = new StringBuilder(f.length);
+		int zeros = 0;
+		boolean comma = false;
+		for (int i = 0; i < reversed.length; i++) {
+			if (reversed[i] == ',') {
+				b.append(',');
+				comma = true;
+				continue;
+			}
+			if (!comma) {
+				b.append(reversed[i]);
+				continue;
+			}
+			if (zeros == 3) {
+				b.append('.');
+				zeros = 0;
+			}
+			zeros++;
+			b.append(reversed[i]);
+		}
+		String r = b.toString();
+		char[] reve = new char[r.length()];
+		for (int i = 0; i < reve.length; i++) {
+			reve[(reve.length - 1) - i] = r.charAt(i);
+		}
+		return new String(reve);
 	}
 	
 	@Override

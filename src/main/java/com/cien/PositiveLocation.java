@@ -1,5 +1,8 @@
 package com.cien;
 
+import net.minecraft.block.Block;
+import net.minecraft.world.World;
+
 public class PositiveLocation {
 	
 	public static int pos(int a) {
@@ -75,6 +78,10 @@ public class PositiveLocation {
 		return x - MAX;
 	}
 	
+	public Block getBlockAt(World w) {
+		return w.getBlock(getX(), y, getZ());
+	}
+	
 	public int getY() {
 		return y;
 	}
@@ -128,5 +135,10 @@ public class PositiveLocation {
 	
 	public int distanceY(PositiveLocation loc) {
 		return bigger(loc.y, y) - smaller(loc.y, y);
+	}
+	
+	@Override
+	public String toString() {
+		return "X: "+getX()+", Y: "+getY()+", Z: "+getZ();
 	}
 }

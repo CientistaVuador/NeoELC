@@ -36,10 +36,15 @@ import com.cien.commands.Memory;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
 import com.cien.economy.CienEconomy;
+import com.cien.economy.commands.Cloja;
+import com.cien.economy.commands.Comprar;
 import com.cien.economy.commands.Eco;
 import com.cien.economy.commands.Enviar;
+import com.cien.economy.commands.Loja;
 import com.cien.economy.commands.Money;
+import com.cien.economy.commands.SetShop;
 import com.cien.economy.commands.Top;
+import com.cien.economy.commands.Vender;
 import com.cien.kits.CienKits;
 import com.cien.kits.commands.KitBuilder;
 import com.cien.login.CienLogin;
@@ -59,7 +64,6 @@ import com.cien.teleport.commands.Tphere;
 import com.cien.teleport.commands.Tpp;
 import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -191,6 +195,12 @@ public class NeoELC {
     	event.registerServerCommand(new Enviar());
     	event.registerServerCommand(new Eco());
     	event.registerServerCommand(new Top());
+    	event.registerServerCommand(new Cloja());
+    	event.registerServerCommand(new SetShop());
+    	event.registerServerCommand(new Loja());
+    	event.registerServerCommand(new Comprar());
+    	event.registerServerCommand(new Vender());
+    	
     }
     
     @EventHandler
