@@ -76,7 +76,7 @@ public class Comprar extends CienCommandBase {
 			LongDecimal value = shop.getPrice().multiplyBy(LongDecimal.valueOf(transfered));
 			EntityPlayerMP owner = Util.getOnlinePlayer(shop.getOwner());
 			if (owner != null) {
-				Util.sendMessage(player, Util.getPrefix()+player.getCommandSenderName()+" Comprou "+transfered+" de "+shop.getItem().getDisplayName()+" com um valor de C$ "+value.toFormattedString());
+				Util.sendMessage(owner, Util.getPrefix()+player.getCommandSenderName()+" Comprou "+transfered+" de "+shop.getItem().getDisplayName()+" com um valor de C$ "+value.toFormattedString());
 			}
 			Util.sendMessage(player, Util.getPrefix()+""+transfered+" itens foram comprados!");
 			Util.sendMessage(player, Util.getPrefix()+"com um valor de C$ "+value.toFormattedString());

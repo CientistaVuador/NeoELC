@@ -15,13 +15,23 @@ public abstract class CienCommandBase extends CommandBase {
 	}
 	
 	@Override
+	public int getRequiredPermissionLevel() {
+		return 0;
+	}
+	
+	@Override
+	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
+		return true;
+	}
+	
+	@Override
 	public String getCommandName() {
 		return name;
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return description;
+		return Util.fixColors(Util.getPrefix()+"/"+name+" - "+description);
 	}
 
 	@Override

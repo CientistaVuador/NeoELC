@@ -54,7 +54,7 @@ public class CienEconomy {
 									Properties prop = Properties.getProperties(player.getCommandSenderName());
 									Object nextUpdate = prop.getMemory("..NextSHOPUpdate");
 									if (nextUpdate == null || System.currentTimeMillis() > (long)nextUpdate) {
-										prop.setMemory("..NextSHOPUpdate", System.currentTimeMillis() + 30*60*100);
+										prop.setMemory("..NextSHOPUpdate", System.currentTimeMillis() + 30*60*1000);
 										Util.sendMessage(player, Util.getPrefix()+"Como usar uma loja:");
 										Util.sendMessage(player, " §6Clique com o direito na placa da loja e");
 										Util.sendMessage(player, " §apara comprar digite /c <quantidade>");
@@ -159,7 +159,7 @@ public class CienEconomy {
 		return null;
 	}
 	
-	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
+	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
 	public void onPlayerInteractWithShop(PlayerInteractEvent event) {
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
 		if (event.action.equals(PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)) {

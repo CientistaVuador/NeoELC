@@ -1,5 +1,9 @@
 package com.cien;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.security.KeyPair;
+
 import com.cien.chat.CienChat;
 import com.cien.chat.commands.Desmutar;
 import com.cien.chat.commands.Global;
@@ -20,6 +24,7 @@ import com.cien.claims.commands.DangerousEntities;
 import com.cien.claims.commands.ETrust;
 import com.cien.claims.commands.EntidadesClaim;
 import com.cien.claims.commands.Expand;
+import com.cien.claims.commands.IgnoreClaims;
 import com.cien.claims.commands.MeusClaims;
 import com.cien.claims.commands.Pos1;
 import com.cien.claims.commands.Pos2;
@@ -50,6 +55,8 @@ import com.cien.kits.commands.KitBuilder;
 import com.cien.login.CienLogin;
 import com.cien.login.commands.Login;
 import com.cien.login.commands.Register;
+import com.cien.login.commands.SetPassword;
+import com.cien.permissions.CienPermissions;
 import com.cien.permissions.commands.Perms;
 import com.cien.teleport.commands.DelHome;
 import com.cien.teleport.commands.DelWarp;
@@ -64,6 +71,8 @@ import com.cien.teleport.commands.Tphere;
 import com.cien.teleport.commands.Tpp;
 import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
+import com.cien.votifier.KeyManager;
+import com.cien.votifier.Votifier;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -74,6 +83,7 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -95,6 +105,49 @@ public class NeoELC {
     		System.out.println("Salvando dados...");
     		Properties.forEach(Properties::save);
     	}, 6000);
+    	
+    	Util.run("Iniciar Votifier", () -> {
+    		try {
+    			KeyPair pair = KeyManager.readKeyPair();
+    			if (pair == null) {
+    				pair = KeyManager.newPair();
+    				KeyManager.writeKeyPair(pair);
+    			}
+    			Votifier votifier = new Votifier(pair, 1245);
+    			votifier.start();
+    		} catch (IOException ex) {
+    			ex.printStackTrace();
+    		}
+    	});
+    	
+    	
+    	System.out.println("Servidor Iniciando.. Alterando o Gerenciador de Comandos através de reflection.");
+    	CienCommandManager manager = new CienCommandManager();
+    	MinecraftServer server = MinecraftServer.getServer();
+    	boolean sucesso = false;
+    	try {
+    		Field[] fields = MinecraftServer.class.getDeclaredFields();
+    		for (Field f:fields) {
+    			f.setAccessible(true);
+    			Object obj = f.get(server);
+    			if (obj == null) {
+    				continue;
+    			}
+    			if (obj.getClass() == ServerCommandManager.class) {
+    				f.set(server, manager);
+    				sucesso = true;
+    				break;
+    			}
+    		}
+    	} catch (ReflectiveOperationException ex) {
+    		System.out.println("Erro ao alterar o gerenciador de comandos");
+    		ex.printStackTrace();
+    	}
+    	if (sucesso) {
+    		System.out.println("Gerenciador de Comandos Alterado com Sucesso!");
+    	} else {
+    		System.out.println("Não foi possível alterar o Gerenciador de Comandos");
+    	}
     }
     
     @EventHandler
@@ -103,6 +156,10 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
     	
+        //CienPermissions
+        FMLCommonHandler.instance().bus().register(CienPermissions.PERMISSIONS);
+        MinecraftForge.EVENT_BUS.register(CienPermissions.PERMISSIONS);
+        
     	//CienLogin
         FMLCommonHandler.instance().bus().register(CienLogin.LOGIN);
         MinecraftForge.EVENT_BUS.register(CienLogin.LOGIN);
@@ -133,6 +190,7 @@ public class NeoELC {
     	//CienLogin
     	event.registerServerCommand(new Login());
     	event.registerServerCommand(new Register());
+    	event.registerServerCommand(new SetPassword());
     	
     	//CienPermissions
     	event.registerServerCommand(new Perms());
@@ -185,6 +243,7 @@ public class NeoELC {
     	event.registerServerCommand(new Trust());
     	event.registerServerCommand(new ETrust());
     	event.registerServerCommand(new Untrust());
+    	event.registerServerCommand(new IgnoreClaims());
     	
     	//CienKits
     	event.registerServerCommand(new KitBuilder());

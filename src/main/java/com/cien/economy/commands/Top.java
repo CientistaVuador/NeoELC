@@ -25,10 +25,10 @@ public class Top extends CienCommandBase {
 				return 0;
 			}
 			if (a1.isSmallerThan(a2)) {
-				return -1;
+				return 1;
 			}
 			if (a1.isBiggerThan(a2)) {
-				return 1;
+				return -1;
 			}
 			return 0;
 		});

@@ -1,33 +1,21 @@
 package com.cien.login.commands;
 
+import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.data.Properties;
 import com.cien.login.CienLogin;
-
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
-public class Register extends CommandBase {
+public class Register extends CienCommandBase {
 
-	@Override
-	public String getCommandName() {
-		return "register";
-	}
-
-	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "Efetua registro no servidor";
-	}
-
-	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
-		return true;
+	public Register() {
+		super("register", "Efetua registro no servidor");
 	}
 	
 	@Override
-	public void processCommand(ICommandSender sender, String[] args) {
+	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!Properties.hasProperties(sender.getCommandSenderName())) {
 			if (args.length < 2) {
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Uso: /register <Senha> <Senha>")));

@@ -6,6 +6,7 @@ import com.cien.permissions.CienPermissions;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
 public class Perms extends CommandBase {
@@ -22,6 +23,13 @@ public class Perms extends CommandBase {
 	
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
+		String user = CienPermissions.PERMISSIONS.getUserWithAdminPerms();
+		if (user != null) {
+			if (!CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "admin.perms")) {
+				Util.sendMessage((EntityPlayerMP)sender, Util.getErrorPrefix()+"Como alguém já possui permissão para esse comando, o op não possui mais nenhum efeito sobre ele.");
+				return;
+			}
+		}
 		if (args.length<1) {
 			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /perms <set/get/copy/reload>")));
 		} else {

@@ -12,14 +12,14 @@ import net.minecraft.util.ChatComponentText;
 public class Vip extends CienCommandBase {
 
 	public Vip() {
-		super("v", "Chat Vip");
+		super("vip", "Chat Vip");
 	}
 
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "chat.vip")) {
 			if (args.length <= 0) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /v <Mensagem>")));
+				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /vip <Mensagem>")));
 				return;
 			}
 			long muteTime = CienChat.CHAT.getMutedTimeLeft(player.getCommandSenderName());

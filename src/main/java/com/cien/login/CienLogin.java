@@ -38,6 +38,16 @@ public final class CienLogin {
 		}, 100);
 	}
 	
+	public String getPassword(String player) {
+		Properties prop = Properties.getProperties(player);
+		return prop.get("password");
+	}
+	
+	public void setPassword(String player, String password) {
+		Properties prop = Properties.getProperties(player);
+		prop.set("password", password);
+	}
+	
 	public boolean shouldBeFreezed(String name) {
 		for (EntityPlayerMP player:NEED_LOGIN.toArray(new EntityPlayerMP[NEED_LOGIN.size()])) {
 			if (player.getCommandSenderName().equals(name)) {

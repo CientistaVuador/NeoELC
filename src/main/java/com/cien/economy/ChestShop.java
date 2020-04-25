@@ -15,6 +15,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -40,8 +42,18 @@ public class ChestShop {
 	private String[] signTextCache = null;
 	
 	public ChestShop(ItemStack item, boolean nbt, boolean buy, LongDecimal price, int x, int y, int z, String world, String owner, boolean unlimited) {
-		this.item = item;
 		this.keepNbt = nbt;
+		if (this.keepNbt) {
+			this.item = item;
+		} else {
+			ItemStack f = item.copy();
+			try {
+				f.setTagCompound((NBTTagCompound)JsonToNBT.func_150315_a("{}"));
+			} catch (NBTException e) {
+				e.printStackTrace();
+			}
+			this.item = f;
+		}
 		this.buy = buy;
 		this.price = price;
 		this.x = x;
@@ -184,7 +196,7 @@ public class ChestShop {
 		InventoryPlayer invPlayer = player.inventory;
 		TileEntityChest chestInv = getChestTileEntity();
 		if (unlimited) {
-			ItemStack stack = this.item.copy();
+			ItemStack stack = getItem();
 			stack.stackSize = 1;
 			return invPlayer.addItemStackToInventory(stack);
 		}

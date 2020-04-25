@@ -7,6 +7,7 @@ import java.util.List;
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.permissions.CienPermissions;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -14,7 +15,6 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -95,6 +95,23 @@ public class CienClaims {
 		}
 		dangerEntity.add(s);
 		prop.setArray("dangerousEntities", dangerEntity.toArray(new String[dangerEntity.size()]));
+	}
+	
+	public boolean isIgnoringClaims(String player) {
+		Properties prop = Properties.getProperties(player);
+		if (!CienPermissions.PERMISSIONS.hasPermission(player, "admin.ignoreclaims")) {
+			return false;
+		}
+		String ig = prop.get("ignoringClaims");
+		if (ig == null) {
+			return false;
+		}
+		return Boolean.parseBoolean(ig);
+	}
+	
+	public void setIgnoringClaims(String player, boolean b) {
+		Properties prop = Properties.getProperties(player);
+		prop.set("ignoringClaims", Boolean.toString(b));
 	}
 	
 	public void setBlockedItem(String s, boolean b) {
@@ -256,6 +273,9 @@ public class CienClaims {
 			return;
 		}
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
+		if (isIgnoringClaims(player.getCommandSenderName())) {
+			return;
+		}
 		com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation(event.x, event.y, event.z), (WorldServer)event.world);
 		if (c == null) {
 			return;
@@ -293,6 +313,9 @@ public class CienClaims {
 			return;
 		}
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
+		if (isIgnoringClaims(player.getCommandSenderName())) {
+			return;
+		}
 		if (player.getCurrentEquippedItem() == null) {
 			return;
 		}
@@ -333,6 +356,9 @@ public class CienClaims {
 			return;
 		}
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
+		if (isIgnoringClaims(player.getCommandSenderName())) {
+			return;
+		}
 		com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation(event.x, event.y, event.z), (WorldServer)event.world);
 		Block block = event.world.getBlock(event.x, event.y, event.z);
 		if (block == null) {
@@ -378,6 +404,9 @@ public class CienClaims {
 	public void onPlayerWalk(LivingUpdateEvent event) {
 		if (event.entityLiving instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
+			if (isIgnoringClaims(player.getCommandSenderName())) {
+				return;
+			}
 			com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation((int)player.posX, (int)player.posY, (int)player.posZ), (WorldServer)player.worldObj);
 			if (c == null) {
 				return;
@@ -431,6 +460,9 @@ public class CienClaims {
 			return;
 		}
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
+		if (isIgnoringClaims(player.getCommandSenderName())) {
+			return;
+		}
 		if (player.getCurrentEquippedItem() == null) {
 			return;
 		}
@@ -511,16 +543,8 @@ public class CienClaims {
 										}
 									}
 								}
-								if (n instanceof EntityTNTPrimed) {
-									EntityTNTPrimed tnt = (EntityTNTPrimed) n;
-									if (tnt.fuse <= 1) {
-										tnt.setDead();
-									}
-									break claimFor;
-								}  else {
-									n.setDead();
-									break claimFor;
-								}
+								n.setDead();
+								break claimFor;
 							}
 						}
 					}

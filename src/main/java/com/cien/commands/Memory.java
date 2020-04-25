@@ -1,25 +1,19 @@
 package com.cien.commands;
 
+import com.cien.CienCommandBase;
 import com.cien.Util;
-
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
-public class Memory extends CommandBase {
+public class Memory extends CienCommandBase {
 
-	@Override
-	public String getCommandName() {
-		return "memory";
+	public Memory() {
+		super("memory", "Mostra a memória do servidor");
 	}
-
+	
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "Mostra a memória do servidor";
-	}
-
-	@Override
-	public void processCommand(ICommandSender sender, String[] p_71515_2_) {
+	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Memória do servidor:")));
 		long max = Runtime.getRuntime().maxMemory()/1000000;
 		long free = Runtime.getRuntime().freeMemory()/1000000;
@@ -27,11 +21,6 @@ public class Memory extends CommandBase {
 		sender.addChatMessage(new ChatComponentText(Util.fixColors(" §6Máximo: "+max+" MB")));
 		sender.addChatMessage(new ChatComponentText(Util.fixColors(" §6Livre: "+free+" MB")));
 		sender.addChatMessage(new ChatComponentText(Util.fixColors(" §6Usado: "+used+" MB")));
-	}
-	
-	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
-		return true;
 	}
 
 }

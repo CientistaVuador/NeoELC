@@ -3,7 +3,19 @@ package com.cien.permissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import com.cien.CienCommandBase;
+import com.cien.CommandPreprocessEvent;
+import com.cien.Util;
 import com.cien.data.Properties;
+import com.mojang.authlib.GameProfile;
+
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraftforge.event.CommandEvent;
 
 public class CienPermissions {
 	
@@ -29,6 +41,17 @@ public class CienPermissions {
 	public void setGroupPermission(String group, String permission, boolean value) {
 		Properties prop = Properties.getProperties("(PermissionsGroup)"+group);
 		prop.setBoolean(permission, value);
+	}
+	
+	public String getUserWithAdminPerms() {
+		for (String s:Properties.getAllProperties()) {
+			if (!s.startsWith("(")) {
+				if (hasPermission(s, "admin.perms")) {
+					return s;
+				}
+			}
+		}
+		return null;
 	}
 	
 	public boolean getGroupPermission(String group, String permission) {
@@ -113,5 +136,36 @@ public class CienPermissions {
 	public String getGroupPrefixOf(String player) {
 		String gp = getGroup(player);
 		return getGroupPrefix(gp);
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
+	public void onPreCommand(CommandPreprocessEvent event) {
+		if (event.getSender() instanceof DedicatedServer) {
+			return;
+		}
+		MinecraftServer minecraftserver = MinecraftServer.getServer();
+        GameProfile gameprofile = minecraftserver.func_152358_ax().func_152655_a(event.getSender().getCommandSenderName());
+        minecraftserver.getConfigurationManager().func_152605_a(gameprofile);
+        String playerName = event.getSender().getCommandSenderName();
+        Util.run("Deop "+event.getSender().getCommandSenderName(), () -> {
+        	MinecraftServer sv = MinecraftServer.getServer();
+            GameProfile prof = minecraftserver.getConfigurationManager().func_152603_m().func_152700_a(playerName);
+            sv.getConfigurationManager().func_152610_b(prof);
+        }, 4);
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)
+	public void onCommand(CommandEvent event) {
+		if (event.sender instanceof DedicatedServer) {
+			return;
+		}
+		if (!(event.command instanceof CienCommandBase)) {
+			if (!event.command.getCommandName().equalsIgnoreCase("perms")) {
+				if (!hasPermission(event.sender.getCommandSenderName(), "default."+event.command.getCommandName())) {
+					event.setCanceled(true);
+					Util.sendMessage((EntityPlayerMP)event.sender, Util.getErrorPrefix()+"Sem Permissão. (default."+event.command.getCommandName()+")");
+				}
+			}
+		}
 	}
 }

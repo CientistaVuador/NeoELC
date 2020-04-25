@@ -1,30 +1,19 @@
 package com.cien.commands;
 
+import com.cien.CienCommandBase;
 import com.cien.Util;
-
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
-public class TPS extends CommandBase {
+public class TPS extends CienCommandBase {
 
-	@Override
-	public String getCommandName() {
-		return "tps";
-	}
-
-	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "Mostra o TPS do servidor";
-	}
-
-	@Override
-	public void processCommand(ICommandSender sender, String[] p_71515_2_) {
-		sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"TPS: "+Util.getTPS())));
+	public TPS() {
+		super("tps", "Mostra o TPS do servidor");
 	}
 	
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
-		return true;
+	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
+		sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"TPS: "+Util.getTPS())));
 	}
 }

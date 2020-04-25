@@ -50,7 +50,6 @@ public class Util {
 			if (t != null) {
 				String name = Item.itemRegistry.getNameForObject(t);
 				items.put(name, t);
-				System.out.println("Item  de ID "+i+" registrado como '"+name+"'");
 			}
 		}
 		System.out.println("Nome de itens carregados.");
@@ -100,7 +99,6 @@ public class Util {
 										carregado++;
 										tamanho += entryName.getBytes().length;
 										tamanho += value.getBytes().length;
-										System.out.println("Entrada '"+entryName+"' definida como '"+value+"'");
 										ptBr.put(entryName, value);
 									}
 								}
