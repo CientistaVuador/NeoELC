@@ -17,7 +17,7 @@ public class Login extends CienCommandBase {
 	
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
-		if (Properties.hasProperties(sender.getCommandSenderName())) {
+		if (CienLogin.LOGIN.getPassword(player.getCommandSenderName()) != null) {
 			if (args.length < 1) {
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /login <Senha>")));
 			} else {

@@ -16,7 +16,7 @@ public class Register extends CienCommandBase {
 	
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
-		if (!Properties.hasProperties(sender.getCommandSenderName())) {
+		if (CienLogin.LOGIN.getPassword(player.getCommandSenderName()) == null) {
 			if (args.length < 2) {
 				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Uso: /register <Senha> <Senha>")));
 			} else {

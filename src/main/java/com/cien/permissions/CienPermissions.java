@@ -148,9 +148,11 @@ public class CienPermissions {
         minecraftserver.getConfigurationManager().func_152605_a(gameprofile);
         String playerName = event.getSender().getCommandSenderName();
         Util.run("Deop "+event.getSender().getCommandSenderName(), () -> {
-        	MinecraftServer sv = MinecraftServer.getServer();
-            GameProfile prof = minecraftserver.getConfigurationManager().func_152603_m().func_152700_a(playerName);
-            sv.getConfigurationManager().func_152610_b(prof);
+        	try {
+        		MinecraftServer sv = MinecraftServer.getServer();
+                GameProfile prof = minecraftserver.getConfigurationManager().func_152603_m().func_152700_a(playerName);
+                sv.getConfigurationManager().func_152610_b(prof);
+        	} catch (Exception ex) {} 
         }, 4);
 	}
 	

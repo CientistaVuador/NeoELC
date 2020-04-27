@@ -15,11 +15,13 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -60,6 +62,67 @@ public class CienClaims {
 		Util.run("Load Dangerous Entities", () -> {
 			dangerEntity.addAll(Arrays.asList(prop.getArray("dangerousEntities")));
 		});
+		Util.schedule("Verificar chunks e claims.", () -> {
+    		for (WorldServer w:Util.getWorlds()) {
+    			for (Chunk k:Util.getLoadedChunksOf(w)) {
+    				int entities = 0;
+    				for (List<?> l:k.entityLists) {
+    					for (Object obj:l) {
+    						if (!(obj instanceof EntityItem)) {
+    							entities++;
+    						}
+    					}
+    				}
+    				boolean advice = false;
+    				com.cien.claims.Claim c = null;
+    				if (entities > 100) {
+    					for (List<?> l:k.entityLists) {
+        					for (Object obj:l) {
+        						if (!(obj instanceof EntityItem)) {
+        							Entity e = (Entity)obj;
+        							e.setDead();
+        							if (c == null && !advice) {
+        								c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation((int)e.posX, (int)e.posY, (int)e.posZ), w);
+        							}
+        							advice = true;
+        						}
+        					}
+        				}
+    				}
+    				if (advice) {
+    					if (c != null) {
+    						EntityPlayerMP owner = Util.getOnlinePlayer(c.getOwner());
+    						if (owner != null) {
+    							Util.sendMessage(owner, Util.getErrorPrefix()+"Aviso: Foram detectadas mais de 100 Entidades em um chunk de seu claim, elas foram removidas.");
+    						}
+    					}
+    				}
+    			}
+    		}
+    		for (com.cien.claims.Claim c:CienClaims.CLAIMS.getClaims()) {
+    			int entities = 0;
+    			Entity[] ents = c.getEntities();
+    			if (ents == null) {
+    				continue;
+    			}
+    			for (Entity e:ents) {
+    				if (!(e instanceof EntityItem)) {
+    					entities++;
+    				}
+    			}
+    			if (entities > c.getSize()) {
+    				for (Entity e:ents) {
+        				if (!(e instanceof EntityItem)) {
+        					e.setDead();
+        				}
+        			}
+    				EntityPlayerMP player = Util.getOnlinePlayer(c.getOwner());
+        			if (player != null) {
+        				Util.sendMessage(player, Util.getErrorPrefix()+"Aviso: Foram detectadas mais de "+c.getSize()+" Entidades em seu claim, elas foram removidas.");
+        			}
+    			}
+    		}
+    	}, 20*30);
 	}
 	
 	public String[] getDangerousEntities() {
@@ -226,6 +289,9 @@ public class CienClaims {
 			return;
 		}
 		EntityPlayerMP player = (EntityPlayerMP) event.getPlayer();
+		if (CienClaims.CLAIMS.isIgnoringClaims(player.getCommandSenderName())) {
+			return;
+		}
 		com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation(event.x, event.y, event.z), (WorldServer)event.world);
 		if (c == null) {
 			return;

@@ -3,6 +3,7 @@ package com.cien.chat.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.chat.CienChat;
+import com.cien.discord.CienDiscord;
 import com.cien.permissions.CienPermissions;
 
 import net.minecraft.command.ICommandSender;
@@ -45,6 +46,12 @@ public class Staff extends CienCommandBase {
 					}
 				}
 				System.out.println("[STAFF] "+sender.getCommandSenderName()+": "+builder.toString());
+				String prefix = CienPermissions.PERMISSIONS.getGroupPrefixOf(player.getCommandSenderName());
+				if (prefix == null) {
+					prefix = "";
+				}
+				prefix = prefix.replace('&', '§');
+				CienDiscord.DISCORD.sendStaffMessage(Util.discordColorsToBlackAndWhite(prefix)+" "+player.getCommandSenderName()+": "+Util.discordColorsToBlackAndWhite(msg));
 			}
 		} else {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));

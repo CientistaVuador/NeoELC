@@ -251,6 +251,9 @@ public final class Claim {
 	
 	public Entity[] getEntities() {
 		WorldServer world = Util.getWorld(this.world);
+		if (world == null) {
+			return null;
+		}
 		List<?> entitiesList = world.loadedEntityList;
 		List<Entity> list = new ArrayList<>();
 		List<Entity> filter = new ArrayList<>();

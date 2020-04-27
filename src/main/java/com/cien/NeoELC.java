@@ -1,9 +1,13 @@
 package com.cien;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.KeyPair;
-
 import com.cien.chat.CienChat;
 import com.cien.chat.commands.Desmutar;
 import com.cien.chat.commands.Global;
@@ -38,8 +42,12 @@ import com.cien.claims.commands.TrustList;
 import com.cien.claims.commands.Untrust;
 import com.cien.claims.commands.VerFlags;
 import com.cien.commands.Memory;
+import com.cien.commands.Ping;
 import com.cien.commands.TPS;
 import com.cien.data.Properties;
+import com.cien.discord.CienDiscord;
+import com.cien.discord.commands.Discord;
+import com.cien.discord.commands.Token;
 import com.cien.economy.CienEconomy;
 import com.cien.economy.commands.Cloja;
 import com.cien.economy.commands.Comprar;
@@ -86,6 +94,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
@@ -97,6 +106,7 @@ public class NeoELC {
 	int ticks = 0;
 	boolean ok = false;
 	boolean utilStarted = false;
+	
 	
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -119,8 +129,6 @@ public class NeoELC {
     			ex.printStackTrace();
     		}
     	});
-    	
-    	
     	System.out.println("Servidor Iniciando.. Alterando o Gerenciador de Comandos através de reflection.");
     	CienCommandManager manager = new CienCommandManager();
     	MinecraftServer server = MinecraftServer.getServer();
@@ -148,10 +156,76 @@ public class NeoELC {
     	} else {
     		System.out.println("Não foi possível alterar o Gerenciador de Comandos");
     	}
+    	
+    	LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
+    	classLoader.addClassLoaderExclusion("com.fasterxml");
+    	classLoader.addClassLoaderExclusion("com.iwebpp");
+    	classLoader.addClassLoaderExclusion("com.neovisionaries");
+    	classLoader.addClassLoaderExclusion("net.dv8tion");
+    	classLoader.addClassLoaderExclusion("okhttp3");
+    	classLoader.addClassLoaderExclusion("okio");
+    	classLoader.addClassLoaderExclusion("org.apache.commons.collections4");
+    	classLoader.addClassLoaderExclusion("org.intellij.lang.annotations");
+    	classLoader.addClassLoaderExclusion("org.jetbrains.annotations");
+    	classLoader.addClassLoaderExclusion("org.slf4j");
+    	
+    	URLClassLoader parent = (URLClassLoader) classLoader.getClass().getClassLoader();
+    	
+    	System.out.println("Procurando pela biblioteca do Discord...");
+
+    	File mods = new File("discord_jda");
+    	if (!mods.exists()) {
+    		mods.mkdirs();
+    	}
+    	File[] files = mods.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				if (pathname.isFile()) {
+					if (pathname.getName().endsWith(".jar")) {
+						return true;
+					}
+				}
+				return false;
+			}
+		});
+    	boolean suc = false;
+    	try {
+    		Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        	method.setAccessible(true);
+    		for (File f:files) {
+    			if (f.getName().startsWith("JDA")) {
+    				method.invoke(parent, f.toURI().toURL());
+    				suc = true;
+    				break;
+    			}
+    		}
+    	} catch (Exception ex) {
+    		System.out.println("Erro enquanto carregava a biblioteca do discord");
+    		ex.printStackTrace();
+    	}
+    	if (suc) {
+    		System.out.println("Biblioteca do discord carregada.");
+    	} else {
+    		System.out.println("Não foi possível encontrar a biblioteca do discord");
+    		System.out.println("Tenha certeza de que baixou a versão com as dependencias");
+    		System.out.println("e que ela está na pasta discord_jda, com o nome começando com JDA.");
+    		System.out.println("O Servidor irá desligar...");
+    		FMLCommonHandler.instance().raiseException(new RuntimeException("JDA não encontrado."), "Veja o log.", true);
+    	}
+    	
+    	try {
+    		CienDiscord.DISCORD.start();
+    	} catch (Exception ex) {
+    		System.out.println("Não foi possível iniciar o bot do discord: "+ex.getMessage());
+    	}
+    	
+    	CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 1)");
     }
+    
     
     @EventHandler
     public void post(FMLPostInitializationEvent event) {
+    	
     	//Main
         FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
@@ -179,6 +253,12 @@ public class NeoELC {
         //CienEconomy
         FMLCommonHandler.instance().bus().register(CienEconomy.ECONOMY);
         MinecraftForge.EVENT_BUS.register(CienEconomy.ECONOMY);
+        
+        //CienDiscord
+        FMLCommonHandler.instance().bus().register(CienDiscord.DISCORD);
+        MinecraftForge.EVENT_BUS.register(CienDiscord.DISCORD);
+        
+        CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 2)");
     }
     
     @EventHandler
@@ -186,6 +266,7 @@ public class NeoELC {
     	//Main commands
     	event.registerServerCommand(new Memory());
     	event.registerServerCommand(new TPS());
+    	event.registerServerCommand(new Ping());
     	
     	//CienLogin
     	event.registerServerCommand(new Login());
@@ -260,10 +341,17 @@ public class NeoELC {
     	event.registerServerCommand(new Comprar());
     	event.registerServerCommand(new Vender());
     	
+    	//CienDiscord
+    	event.registerServerCommand(new Discord());
+    	event.registerServerCommand(new Token());
+    	
+    	CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 3)");
     }
     
     @EventHandler
     public void serverShutdown(FMLServerStoppingEvent event) {
+    	CienDiscord.DISCORD.setChannelsTopic("Servidor Offline.");
+    	CienDiscord.DISCORD.sendMessage(":red_square: Servidor Desligado.");
     	System.out.println("Salvando dados...");
 		Properties.forEach(Properties::save);
 		for (Object player:MinecraftServer.getServer().getConfigurationManager().playerEntityList) {

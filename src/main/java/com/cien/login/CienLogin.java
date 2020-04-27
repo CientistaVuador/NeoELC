@@ -64,7 +64,7 @@ public final class CienLogin {
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onPlayerEntersServer(PlayerLoggedInEvent event) {
-    	if (!Properties.hasProperties(event.player.getCommandSenderName())) {
+    	if (getPassword(event.player.getCommandSenderName()) == null) {
     		NEED_REGISTER.add((EntityPlayerMP)event.player);
     	} else {
     		EntityPlayerMP mp = (EntityPlayerMP)event.player;
@@ -82,7 +82,7 @@ public final class CienLogin {
 			EntityPlayerMP player = (EntityPlayerMP)event.player;
 			NEED_LOGIN.remove(player);
 			NEED_REGISTER.remove(player);
-			if (Properties.hasProperties(player.getCommandSenderName())) {
+			if (getPassword(event.player.getCommandSenderName()) != null) {
 				Properties prop = Properties.getProperties(player.getCommandSenderName());
 				ItemStack[][] stack = (ItemStack[][]) prop.getMemory("storedInv");
 	    		if (stack != null) {

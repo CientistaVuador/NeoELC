@@ -6,6 +6,7 @@ import java.util.List;
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.discord.CienDiscord;
 import com.cien.login.CienLogin;
 import com.cien.permissions.CienPermissions;
 
@@ -190,6 +191,12 @@ public class CienChat {
 			}
 		}
 		System.out.println("[LOCAL] "+event.player.getCommandSenderName()+": "+event.message);
+		String prefix = CienPermissions.PERMISSIONS.getGroupPrefixOf(event.player.getCommandSenderName());
+		if (prefix == null) {
+			prefix = "";
+		}
+		prefix = prefix.replace('&', '§');
+		CienDiscord.DISCORD.sendStaffMessage("[LOCAL] "+Util.discordColorsToBlackAndWhite(prefix)+" "+event.player.getCommandSenderName()+": "+Util.discordColorsToBlackAndWhite(event.message.replace('&', '§')));
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)

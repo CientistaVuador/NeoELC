@@ -32,6 +32,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringTranslate;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 
 public class Util {
@@ -163,6 +164,15 @@ public class Util {
 		return MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 	}
 	
+	public static Chunk[] getLoadedChunksOf(WorldServer w) {
+		List<?> loaded = w.theChunkProviderServer.loadedChunks;
+		Chunk[] chunk = new Chunk[loaded.size()];
+		for (int i = 0; i < loaded.size(); i++) {
+			chunk[i] = (Chunk) loaded.get(i);
+		}
+		return chunk;
+	}
+	
 	public static int getPlayerDirectionReversed(EntityPlayerMP player) {
 		int dir = getPlayerDirection(player);
 		switch (dir) {
@@ -204,6 +214,92 @@ public class Util {
 			return 5;
 		}
 		return 0;
+	}
+	
+	public static String discordColorsToBlackAndWhite(String msg) {
+		StringBuilder b = new StringBuilder(msg.length());
+		boolean color = false;
+		
+		boolean append = false;
+		boolean spoiler = false;
+		boolean cut = false;
+		boolean under = false;
+		boolean italian = false;
+		
+		for (char c:msg.toCharArray()) {
+			if (c == '§') {
+				color = true;
+				continue;
+			}
+			if (color) {
+				c = Character.toLowerCase(c);
+				if (c == 'l') {
+					color = false;
+					continue;
+				}
+				if (c == 'k') {
+					spoiler = !spoiler;
+					b.append("||");
+					color = false;
+					continue;
+				}
+				if (c == 'm') {
+					cut = !cut;
+					b.append("~~");
+					color = false;
+					continue;
+				}
+				if (c == 'n') {
+					under = !under;
+					b.append("__");
+					color = false;
+					continue;
+				}
+				if (c == 'o') {
+					italian = !under;
+					b.append("_");
+					color = false;
+					continue;
+				}
+				if (cut) {
+					cut = false;
+					b.append("~~");
+				}
+				if (under) {
+					under = false;
+					b.append("__");
+				}
+				if (italian) {
+					italian = false;
+					b.append("_");
+				}
+				if (spoiler) {
+					spoiler = false;
+					b.append("||");
+				}
+				b.append("**");
+				color = false;
+				append = !append;
+				continue;
+			}
+			b.append(c);
+		}
+		if (spoiler) {
+			b.append("||");
+		}
+		if (cut) {
+			b.append("~~");
+		}
+		if (under) {
+			b.append("__");
+		}
+		if (italian) {
+			b.append("_");
+		}
+		if (append) {
+			b.append("**");
+		}
+		return b.toString();
 	}
 	
 	public static String translateUnlocalizedToPortuguese(String unlocalized) {
@@ -473,14 +569,14 @@ public class Util {
 	public static void teleportPlayer(EntityPlayerMP player, World w, float x, float y, float z, float pitch, float yaw) {
 		int oldDim = player.worldObj.provider.dimensionId;
 		if (oldDim != w.provider.dimensionId) {
-			player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId);
+			player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId, new NoTeleporter(Util.getWorld(w.provider.getDimensionName())));
 		}
 		player.setPositionAndRotation(x, y, z, yaw, pitch);
 		player.setPositionAndUpdate(x, y, z);
 		player.addExperienceLevel(0);
 		if (oldDim == 1 && oldDim != w.provider.dimensionId) {
 			Util.run("Remove player from end: "+player.getDisplayName(), () -> {
-				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId);
+				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId, new NoTeleporter(Util.getWorld(w.provider.getDimensionName())));
 	            player.setPositionAndUpdate(x, y, z);
 	            player.getServerForPlayer().updateEntityWithOptionalForce(player, false);
 			}, 2);
@@ -500,6 +596,10 @@ public class Util {
 		return null;
 	}
 	
+	public static WorldServer[] getWorlds() {
+		return DimensionManager.getWorlds();
+	}
+	
 	public static ServerConfigurationManager getServerManager() {
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager();
 	}
@@ -512,20 +612,69 @@ public class Util {
 	public static String fixColors(String msg) {
 		StringBuilder b = new StringBuilder(64);
 		char lastColor = 'f';
+		
+		boolean spoiler = false;
+		boolean cut = false;
+		boolean under = false;
+		boolean italian = false;
+		boolean bold = false;
+		
 		boolean color = false;
+		
 		for (char c:msg.toCharArray()) {
 			if (color) {
 				color = false;
-				lastColor = c;
+				boolean modificator = false;
+				if (c == 'l') {
+					bold = true;
+					modificator = true;
+				}
+				if (c == 'k') {
+					spoiler = true;
+					modificator = true;
+				}
+				if (c == 'm') {
+					cut = true;
+					modificator = true;
+				}
+				if (c == 'n') {
+					under = true;
+					modificator = true;
+				}
+				if (c == 'o') {
+					italian = true;
+					modificator = true;
+				}
+				if (!modificator) {
+					lastColor = c;
+					bold = false;
+					spoiler = false;
+					cut = false;
+					under = false;
+					italian = false;
+				}
+				continue;
 			}
 			if (c == '§') {
 				color = true;
-			}
-			if (c == ' ') {
-				b.append(' ');
-				b.append('§');
-				b.append(lastColor);
 				continue;
+			}
+			b.append('§');
+			b.append(lastColor);
+			if (bold) {
+				b.append("§l");
+			}
+			if (spoiler) {
+				b.append("§k");
+			}
+			if (cut) {
+				b.append("§m");
+			}
+			if (under) {
+				b.append("§n");
+			}
+			if (italian) {
+				b.append("§o");
 			}
 			b.append(c);
 		}

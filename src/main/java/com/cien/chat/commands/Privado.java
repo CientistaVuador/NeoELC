@@ -3,6 +3,7 @@ package com.cien.chat.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.chat.CienChat;
+import com.cien.discord.CienDiscord;
 import com.cien.permissions.CienPermissions;
 
 import net.minecraft.command.ICommandSender;
@@ -55,6 +56,7 @@ public class Privado extends CienCommandBase {
 				}
 				System.out.println("[PRIVADO] "+sender.getCommandSenderName()+" -> "+receiver+": "+builder.toString());
 				CienChat.CHAT.setLastSenderFor(receiver, sender.getCommandSenderName());
+				CienDiscord.DISCORD.sendStaffMessage("[PRIVADO] "+sender.getCommandSenderName()+" -> "+receiver+": "+Util.discordColorsToBlackAndWhite(msg));
 			} else {
 				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player offline ou inválido.")));
 			}
