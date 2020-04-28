@@ -2,9 +2,7 @@ package com.cien.discord.discordcommands;
 
 import com.cien.discord.CienDiscord;
 import com.cien.discord.DiscordCommand;
-
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 
 public class Register extends DiscordCommand {
@@ -26,9 +24,7 @@ public class Register extends DiscordCommand {
 		} else {
 			CienDiscord.DISCORD.sendCommandMessage("<@"+user.getIdLong()+"> Enviei no privado, use com /token");
 		}
-		user.openPrivateChannel().queue((PrivateChannel c) -> {
-			c.sendMessage("Entre no servidor e use /token "+CienDiscord.DISCORD.generateToken(user.getIdLong())).queue();
-		});
+		CienDiscord.DISCORD.sendPrivateMessage(user, "Entre no servidor e use /token "+CienDiscord.DISCORD.generateToken(user.getIdLong()));
 	}
 
 }

@@ -16,6 +16,9 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -48,6 +51,8 @@ public class CienDiscord implements EventListener {
 	private long staffChatID = 0;
 	private long vipChatID = 0;
 	private long globalChatID = 0;
+	private long redirectChatID = 0;
+	private long redirectRoleID = 0;
 	
 	private CienDiscord() {
 		this.token = prop.get("token");
@@ -56,6 +61,8 @@ public class CienDiscord implements EventListener {
 		String globalChat = prop.get("globalChat");
 		String vipChat = prop.get("vipChat");
 		String staffChat = prop.get("staffChat");
+		String redirectChat = prop.get("redirectChat");
+		String redirectRole = prop.get("redirectRoleID");
 		if (commandChat != null) {
 			this.commandChatID = Long.parseLong(commandChat);
 		}
@@ -67,6 +74,12 @@ public class CienDiscord implements EventListener {
 		}
 		if (staffChat != null) {
 			this.staffChatID = Long.parseLong(staffChat);
+		}
+		if (redirectChat != null) {
+			this.redirectChatID = Long.parseLong(redirectChat);
+		}
+		if (redirectRole != null) {
+			this.redirectRoleID = Long.parseLong(redirectRole);
 		}
 		
 		Util.run("Server Started", () -> {
@@ -129,6 +142,36 @@ public class CienDiscord implements EventListener {
 		if (command != null) {
 			command.getManager().setTopic(topic).queue();
 		}
+	}
+	
+	public void sendPrivateMessage(User s, String msg) {
+		s.openPrivateChannel().queue((PrivateChannel p) -> {
+			p.sendMessage(msg).queue((Message m) -> {
+				
+			}, (Throwable th) -> {
+				TextChannel command = getCommandChat();
+				if (command != null) {
+					TextChannel redirect = getRedirectChat();
+					if (redirect != null) {
+						command.sendMessage("<@"+s.getIdLong()+"> Não foi possível enviar a mensagem ao seu privado, ela será redirecionada pelo chat do servidor, aguarde ser mencionado.").queue();
+						RedirectChatManager.getInstance().redirect(s, msg);
+					} else {
+						command.sendMessage("<@"+s.getIdLong()+"> Não foi possível enviar a mensagem ao seu privado.").queue();
+					}
+				}
+			});
+		}, (Throwable th) -> {
+			TextChannel command = getCommandChat();
+			if (command != null) {
+				TextChannel redirect = getRedirectChat();
+				if (redirect != null) {
+					command.sendMessage("<@"+s.getIdLong()+"> Não foi possível enviar a mensagem ao seu privado, ela será redirecionada pelo chat do servidor, aguarde ser mencionado.").queue();
+					RedirectChatManager.getInstance().redirect(s, msg);
+				} else {
+					command.sendMessage("<@"+s.getIdLong()+"> Não foi possível enviar a mensagem ao seu privado.").queue();
+				}
+			}
+		});
 	}
 	
 	public boolean hasDiscordID(String player) {
@@ -217,6 +260,17 @@ public class CienDiscord implements EventListener {
 		return vipChatID;
 	}
 	
+	public long getRedirectChatID() {
+		return redirectChatID;
+	}
+	
+	public void sendRedirectMessage(String msg) {
+		TextChannel redi = getRedirectChat();
+		if (redi != null) {
+			redi.sendMessage(msg).queue();
+		}
+	}
+	
 	public void sendGlobalMessage(String msg) {
 		TextChannel global = getGlobalChat();
 		if (global != null) {
@@ -245,11 +299,32 @@ public class CienDiscord implements EventListener {
 		}
 	}
 	
+	public long getRedirectRoleID() {
+		return redirectRoleID;
+	}
+	
+	public Role getRedirectRole() {
+		if (jda == null) {
+			return null;
+		}
+		return jda.getRoleById(getRedirectRoleID());
+	}
+	
+	public void setRedirectRoleID(long redirectRoleID) {
+		this.redirectRoleID = redirectRoleID;
+		prop.set("redirectRoleID", Long.toString(redirectRoleID));
+	}
+	
 	public void sendMessage(String msg) {
 		sendGlobalMessage(msg);
 		sendCommandMessage(msg);
 		sendVipMessage(msg);
 		sendStaffMessage(msg);
+	}
+	
+	public void setRedirectChatID(long redirectChatID) {
+		this.redirectChatID = redirectChatID;
+		prop.set("redirectChat", Long.toString(redirectChatID));
 	}
 	
 	public void setCommandChatID(long commandChatID) {
@@ -298,6 +373,13 @@ public class CienDiscord implements EventListener {
 			return null;
 		}
 		return jda.getTextChannelById(commandChatID);
+	}
+	
+	public TextChannel getRedirectChat() {
+		if (jda == null) {
+			return null;
+		}
+		return jda.getTextChannelById(redirectChatID);
 	}
 	
 	public Properties getProp() {

@@ -8,6 +8,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.KeyPair;
+
+import com.cien.banitem.CienBanItem;
+import com.cien.banitem.commands.BanItem;
 import com.cien.chat.CienChat;
 import com.cien.chat.commands.Desmutar;
 import com.cien.chat.commands.Global;
@@ -70,6 +73,7 @@ import com.cien.teleport.commands.DelHome;
 import com.cien.teleport.commands.DelWarp;
 import com.cien.teleport.commands.GotoHome;
 import com.cien.teleport.commands.Home;
+import com.cien.teleport.commands.Rtp;
 import com.cien.teleport.commands.SetHome;
 import com.cien.teleport.commands.SetMaxHomes;
 import com.cien.teleport.commands.SetWarp;
@@ -79,6 +83,7 @@ import com.cien.teleport.commands.Tphere;
 import com.cien.teleport.commands.Tpp;
 import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
+import com.cien.vip.CienVIP;
 import com.cien.votifier.KeyManager;
 import com.cien.votifier.Votifier;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -107,6 +112,7 @@ public class NeoELC {
 	boolean ok = false;
 	boolean utilStarted = false;
 	
+	int chunks = 100;
 	
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -115,7 +121,9 @@ public class NeoELC {
     		System.out.println("Salvando dados...");
     		Properties.forEach(Properties::save);
     	}, 6000);
-    	
+    	Util.schedule("Reset Chunk Meta", () -> {
+    		this.chunks = 100;
+    	}, 20);
     	Util.run("Iniciar Votifier", () -> {
     		try {
     			KeyPair pair = KeyManager.readKeyPair();
@@ -258,6 +266,14 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienDiscord.DISCORD);
         MinecraftForge.EVENT_BUS.register(CienDiscord.DISCORD);
         
+        //CienVIP
+        FMLCommonHandler.instance().bus().register(CienVIP.VIP);
+        MinecraftForge.EVENT_BUS.register(CienVIP.VIP);
+        
+        //CienBanItem
+        FMLCommonHandler.instance().bus().register(CienBanItem.BANITEM);
+        MinecraftForge.EVENT_BUS.register(CienBanItem.BANITEM);
+        
         CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 2)");
     }
     
@@ -290,6 +306,7 @@ public class NeoELC {
     	event.registerServerCommand(new Tpac());
     	event.registerServerCommand(new Tphere());
     	event.registerServerCommand(new Tpp());
+    	event.registerServerCommand(new Rtp());
     	
     	//CienChat
     	event.registerServerCommand(new Global());
@@ -344,6 +361,11 @@ public class NeoELC {
     	//CienDiscord
     	event.registerServerCommand(new Discord());
     	event.registerServerCommand(new Token());
+    	
+    	//CienVIP
+    	
+    	//CienBanItem
+    	event.registerServerCommand(new BanItem());
     	
     	CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 3)");
     }

@@ -3,12 +3,10 @@ package com.cien.claims;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.data.Properties;
 import com.cien.permissions.CienPermissions;
-
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
@@ -23,6 +21,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -566,6 +565,19 @@ public class CienClaims {
 					continue;
 				}
 				event.setCanceled(true);
+			}
+		}
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
+	public void onEntityDamage(LivingAttackEvent event) {
+		if (event.entity instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) event.entity;
+			Claim c = CienClaims.CLAIMS.getClaimInside(player);
+			if (c != null) {
+				if (!c.getFlag("permitirDano")) {
+					event.setCanceled(true);
+				}
 			}
 		}
 	}

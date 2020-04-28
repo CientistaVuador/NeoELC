@@ -24,7 +24,7 @@ public class Discord extends CienCommandBase {
 			}
 		} else {
 			if (args.length == 0) {
-				Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord <restart/invite/setinvite/setglobal/setvip/setcommand/setstaff/settoken>");
+				Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord <restart/invite/setinvite/setglobal/setvip/setcommand/setstaff/settoken/setredirect/setredirectrole>");
 			} else {
 				String arg = args[0];
 				if (arg.equalsIgnoreCase("restart")) {
@@ -122,7 +122,35 @@ public class Discord extends CienCommandBase {
 					}
 					return;
 				}
-				Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord <restart/invite/setinvite/setglobal/setvip/setcommand/setstaff/settoken>");
+				if (arg.equalsIgnoreCase("setredirect")) {
+					if (args.length != 2) {
+						Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord setredirect <ID>");
+					} else {
+						try {
+							CienDiscord.DISCORD.setRedirectChatID(Long.parseLong(args[1]));
+						} catch (NumberFormatException ex) {
+							Util.sendMessage(player, Util.getErrorPrefix()+"Erro: "+ex.getMessage());
+							return;
+						}
+						Util.sendMessage(player, Util.getPrefix()+"Sucesso!");
+					}
+					return;
+				}
+				if (arg.equalsIgnoreCase("setredirectrole")) {
+					if (args.length != 2) {
+						Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord setredirectrole <ID>");
+					} else {
+						try {
+							CienDiscord.DISCORD.setRedirectRoleID(Long.parseLong(args[1]));
+						} catch (NumberFormatException ex) {
+							Util.sendMessage(player, Util.getErrorPrefix()+"Erro: "+ex.getMessage());
+							return;
+						}
+						Util.sendMessage(player, Util.getPrefix()+"Sucesso!");
+					}
+					return;
+				}
+				Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /discord <restart/invite/setinvite/setglobal/setvip/setcommand/setstaff/settoken/setredirect/setredirectrole>");
 			}
 		}
 	}

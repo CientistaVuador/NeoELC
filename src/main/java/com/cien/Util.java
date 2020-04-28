@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 import com.cien.data.Node;
 import com.cien.data.Properties;
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -524,7 +525,12 @@ public class Util {
 	}
 	
 	public static int getHighestYAt(int x, int z, WorldServer world) {
-		return world.getHeightValue(x, z);
+		for (int i = 255; i > 0; i--) {
+			if (Block.getIdFromBlock(world.getBlock(x, i, z)) != 0) {
+				return i;
+			}
+		}
+		return 255;
 	}
 	
 	public static boolean isOnline(String player) {
