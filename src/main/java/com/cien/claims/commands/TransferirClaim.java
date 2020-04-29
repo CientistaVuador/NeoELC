@@ -17,6 +17,10 @@ public class TransferirClaim extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		com.cien.claims.Claim f = CienClaims.CLAIMS.getClaimInside(player);
+		if (args.length != 1) {
+			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /transferirclaim <Player>")));
+			return;
+		}
 		if (f == null) {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não está sobre nenhum claim.")));
 			return;
@@ -32,7 +36,7 @@ public class TransferirClaim extends CienCommandBase {
 		}
 		f.setOwner(transferir.getCommandSenderName());
 		f.removeAllFlagsWith(player.getCommandSenderName());
-		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Claim removido e blocos retornados.")));
+		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Claim transferido.")));
 	}
 
 }

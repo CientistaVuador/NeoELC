@@ -10,7 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
 
 public class Rtp extends CienCommandBase {
-
+	
 	private final int[][] cachedLocations = new int[10][2];
 	private int cacheIndex = 0;
 	
@@ -41,19 +41,20 @@ public class Rtp extends CienCommandBase {
 				Util.sendMessage(player, Util.getPrefix()+"Teleportado!");
 				return;
 			}
-			int x = (int) ((15000 * Math.random()) - (15000/2f));
-			int z = (int) ((15000 * Math.random()) - (15000/2f));
+			int x = (int) ((30000 * Math.random()) - (30000/2f));
+			int z = (int) ((30000 * Math.random()) - (30000/2f));
 			int y = Util.getHighestYAt(x, z, sv);
 			for (int i = 0; i < 10; i++) {
-				x = (int) ((15000 * Math.random()) - (15000/2f));
-				z = (int) ((15000 * Math.random()) - (15000/2f));
-				y = Util.getHighestYAt(x, z, sv);
 				int lastBlockID = Block.getIdFromBlock(sv.getBlock(x, y, z));
 				if (lastBlockID != 8 && lastBlockID != 9) {
 					break;
 				}
+				x = (int) ((30000 * Math.random()) - (30000/2f));
+				z = (int) ((30000 * Math.random()) - (30000/2f));
+				y = Util.getHighestYAt(x, z, sv);
 			}
-			Util.teleportPlayer(player, sv, x, y, z, player.rotationPitch, player.rotationYaw);
+			sv.theChunkProviderServer.loadChunk(x/16, z/16);
+			Util.teleportPlayer(player, sv, x, Util.getHighestYAt(x, z, sv), z, player.rotationPitch, player.rotationYaw);
 			int imutX = x;
 			int imutZ = z;
 			Util.run("Reteleport Player", () -> {

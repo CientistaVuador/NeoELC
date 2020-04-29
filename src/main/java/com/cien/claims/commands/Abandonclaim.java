@@ -26,6 +26,7 @@ public class Abandonclaim extends CienCommandBase {
 			return;
 		}
 		CienClaims.CLAIMS.removeClaim(f);
+		f.undoFences();
 		f.getProperties().delete();
 		CienClaims.CLAIMS.addBlocksTo(player.getCommandSenderName(), f.getSize());
 		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Claim removido e blocos retornados.")));

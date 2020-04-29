@@ -67,12 +67,7 @@ public final class CienLogin {
     	if (getPassword(event.player.getCommandSenderName()) == null) {
     		NEED_REGISTER.add((EntityPlayerMP)event.player);
     	} else {
-    		EntityPlayerMP mp = (EntityPlayerMP)event.player;
-    		Properties prop = Properties.getProperties(mp.getCommandSenderName());
-    		NEED_LOGIN.add(mp);
-    		prop.setMemory("storedInv", new ItemStack[][] {mp.inventory.armorInventory, mp.inventory.mainInventory});
-    		mp.inventory.armorInventory = new ItemStack[4];
-    		mp.inventory.mainInventory = new ItemStack[36];
+    		NEED_LOGIN.add((EntityPlayerMP)event.player);
     	}
     }
 	
@@ -82,16 +77,6 @@ public final class CienLogin {
 			EntityPlayerMP player = (EntityPlayerMP)event.player;
 			NEED_LOGIN.remove(player);
 			NEED_REGISTER.remove(player);
-			if (getPassword(event.player.getCommandSenderName()) != null) {
-				Properties prop = Properties.getProperties(player.getCommandSenderName());
-				ItemStack[][] stack = (ItemStack[][]) prop.getMemory("storedInv");
-	    		if (stack != null) {
-	    			ItemStack[] armor = stack[0];
-	    			ItemStack[] inv = stack[1];
-	    			player.inventory.armorInventory = armor;
-	    			player.inventory.mainInventory = inv;
-	    		}
-			}
 		}
 	}
 	

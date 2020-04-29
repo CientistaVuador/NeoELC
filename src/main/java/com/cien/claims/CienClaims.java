@@ -106,13 +106,17 @@ public class CienClaims {
     			}
     			for (Entity e:ents) {
     				if (!(e instanceof EntityItem)) {
-    					entities++;
+    					if (!e.isDead) {
+    						entities++;
+    					}
     				}
     			}
     			if (entities > c.getSize()) {
     				for (Entity e:ents) {
         				if (!(e instanceof EntityItem)) {
-        					e.setDead();
+        					if (!e.isDead) {
+        						e.setDead();
+        					}
         				}
         			}
     				EntityPlayerMP player = Util.getOnlinePlayer(c.getOwner());
@@ -121,7 +125,7 @@ public class CienClaims {
         			}
     			}
     		}
-    	}, 20*30);
+    	}, 5*60*20);
 	}
 	
 	public String[] getDangerousEntities() {

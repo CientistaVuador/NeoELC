@@ -16,6 +16,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -123,6 +124,17 @@ public class CienDiscord implements EventListener {
 	
 	public boolean hasToken(long discordID) {
 		return tokens.containsValue(discordID);
+	}
+	
+	public Guild getGuild() {
+		if (jda == null) {
+			return null;
+		}
+		List<Guild> list = jda.getGuilds();
+		if (list.size() == 0) {
+			return null;
+		}
+		return list.get(0);
 	}
 	
 	public void setChannelsTopic(String topic) {
@@ -265,6 +277,9 @@ public class CienDiscord implements EventListener {
 	}
 	
 	public void sendRedirectMessage(String msg) {
+		if (msg.contains("@everyone") || msg.contains("@here")) {
+			return;
+		}
 		TextChannel redi = getRedirectChat();
 		if (redi != null) {
 			redi.sendMessage(msg).queue();
@@ -272,6 +287,9 @@ public class CienDiscord implements EventListener {
 	}
 	
 	public void sendGlobalMessage(String msg) {
+		if (msg.contains("@everyone") || msg.contains("@here")) {
+			return;
+		}
 		TextChannel global = getGlobalChat();
 		if (global != null) {
 			global.sendMessage(msg).queue();
@@ -279,6 +297,9 @@ public class CienDiscord implements EventListener {
 	}
 	
 	public void sendVipMessage(String msg) {
+		if (msg.contains("@everyone") || msg.contains("@here")) {
+			return;
+		}
 		TextChannel vip = getVipChat();
 		if (vip != null) {
 			vip.sendMessage(msg).queue();
@@ -286,6 +307,9 @@ public class CienDiscord implements EventListener {
 	}
 	
 	public void sendStaffMessage(String msg) {
+		if (msg.contains("@everyone") || msg.contains("@here")) {
+			return;
+		}
 		TextChannel staff = getStaffChat();
 		if (staff != null) {
 			staff.sendMessage(msg).queue();
@@ -293,6 +317,9 @@ public class CienDiscord implements EventListener {
 	}
 	
 	public void sendCommandMessage(String msg) {
+		if (msg.contains("@everyone") || msg.contains("@here")) {
+			return;
+		}
 		TextChannel command = getCommandChat();
 		if (command != null) {
 			command.sendMessage(msg).queue();

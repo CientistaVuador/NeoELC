@@ -55,6 +55,7 @@ public class Expand extends CienCommandBase {
 				return;
 			}
 			CienClaims.CLAIMS.removeClaim(claimToExpand);
+			claimToExpand.undoFences();
 			claimToExpand.getProperties().delete();
 			CienClaims.CLAIMS.addClaim(claim);
 			CienClaims.CLAIMS.removeBlocksOf(player.getCommandSenderName(), (claim.getSize()-claimToExpand.getSize()));

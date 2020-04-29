@@ -417,26 +417,62 @@ public final class Claim {
 	public void makeFencesAndSave() {
 		WorldServer w = Util.getWorld(getWorld());
 		for (int x = smallerX; x < biggerX; x++) {
-            int highY = Util.getHighestYAt(x, smallerZ, w);
+            int highY = Util.getHighestYAt(x, smallerZ, w) + 1;
             w.setBlock(x, highY, smallerZ, Block.getBlockById(85));
         }
         for (int x = smallerX; x < biggerX; x++) {
-        	int highY = Util.getHighestYAt(x, biggerZ, w);
+        	int highY = Util.getHighestYAt(x, biggerZ, w) + 1;
             w.setBlock(x, highY, biggerZ, Block.getBlockById(85));
         }
         for (int z = smallerZ; z < biggerZ; z++) {
-        	int highY = Util.getHighestYAt(smallerX, z, w);
+        	int highY = Util.getHighestYAt(smallerX, z, w) + 1;
             w.setBlock(smallerX, highY, z, Block.getBlockById(85));
         }
         for (int z = smallerZ; z < biggerZ; z++) {
-        	int highY = Util.getHighestYAt(biggerX, z, w);
+        	int highY = Util.getHighestYAt(biggerX, z, w) + 1;
             w.setBlock(biggerX, highY, z, Block.getBlockById(85));
         }
-        int highY = Util.getHighestYAt(biggerX, biggerZ, w);
+        int highY = Util.getHighestYAt(biggerX, biggerZ, w) + 1;
         w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(85));
-        highY = Util.getHighestYAt(smallerX, smallerZ, w);
+        highY = Util.getHighestYAt(smallerX, smallerZ, w) + 1;
         w.setBlock(smallerX, highY, smallerZ, Block.getBlockById(85));
         save();
+	}
+	
+	public void undoFences() {
+		WorldServer w = Util.getWorld(getWorld());
+		for (int x = smallerX; x < biggerX; x++) {
+            int highY = Util.getHighestYAt(x, smallerZ, w);
+            if (Block.getIdFromBlock(w.getBlock(x, highY, smallerZ)) == 85) {
+            	w.setBlock(x, highY, smallerZ, Block.getBlockById(0));
+            }
+        }
+        for (int x = smallerX; x < biggerX; x++) {
+        	int highY = Util.getHighestYAt(x, biggerZ, w);
+            if (Block.getIdFromBlock(w.getBlock(x, highY, biggerZ)) == 85) {
+            	w.setBlock(x, highY, biggerZ, Block.getBlockById(0));
+            }
+        }
+        for (int z = smallerZ; z < biggerZ; z++) {
+        	int highY = Util.getHighestYAt(smallerX, z, w);
+            if (Block.getIdFromBlock(w.getBlock(smallerX, highY, z)) == 85) {
+            	w.setBlock(smallerX, highY, z, Block.getBlockById(0));
+            }
+        }
+        for (int z = smallerZ; z < biggerZ; z++) {
+        	int highY = Util.getHighestYAt(biggerX, z, w);
+            if (Block.getIdFromBlock(w.getBlock(biggerX, highY, z)) == 85) {
+            	w.setBlock(biggerX, highY, z, Block.getBlockById(0));
+            }
+        }
+        int highY = Util.getHighestYAt(biggerX, biggerZ, w);
+        if (Block.getIdFromBlock(w.getBlock(biggerX, highY, biggerZ)) == 85) {
+        	w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(0));
+        }
+        highY = Util.getHighestYAt(smallerX, smallerZ, w);
+        if (Block.getIdFromBlock(w.getBlock(smallerX, highY, smallerZ)) == 85) {
+        	w.setBlock(smallerX, highY, smallerZ, Block.getBlockById(0));
+        }
 	}
 	
 	public PositiveLocation getLocation1() {

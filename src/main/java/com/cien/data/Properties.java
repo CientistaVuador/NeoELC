@@ -34,6 +34,18 @@ public final class Properties {
 		return p;
 	}
 	
+	public static void cleanup() {
+		for (File f:DATA.listFiles()) {
+			if (f.isFile()) {
+				if (f.getName().endsWith(".data")) {
+					if (f.length() == 0) {
+						f.delete();
+					}
+				}
+			}
+		}
+	}
+	
 	public static String[] getAllProperties() {
 		List<String> names = new ArrayList<>();
 		forEach(Properties::save);
@@ -73,6 +85,16 @@ public final class Properties {
 		return b.toString();
 	}
 	
+	public static Properties[] getLoadedProperties() {
+		return created.toArray(new Properties[created.size()]);
+	}
+	
+	public static void saveAll() {
+		for (Properties prop:getLoadedProperties()) {
+			prop.save();
+		}
+	}
+	
 	private final Map<String, String> map = new HashMap<>();
 	private final Map<String, Object> memory = new HashMap<>();
 	private final String name;
@@ -110,8 +132,10 @@ public final class Properties {
 	}
 	
 	public boolean delete() {
-		file.delete();
-		return created.remove(this);
+		this.map.clear();
+		this.memory.clear();
+		cleanup();
+		return !file.exists();
 	}
 	
 	public void save() {

@@ -84,6 +84,8 @@ import com.cien.teleport.commands.Tpp;
 import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
 import com.cien.vip.CienVIP;
+import com.cien.vip.commands.Ativar;
+import com.cien.vip.commands.GerarKey;
 import com.cien.votifier.KeyManager;
 import com.cien.votifier.Votifier;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -92,6 +94,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -363,6 +366,9 @@ public class NeoELC {
     	event.registerServerCommand(new Token());
     	
     	//CienVIP
+    	event.registerServerCommand(new GerarKey());
+    	event.registerServerCommand(new Ativar());
+    	event.registerServerCommand(new com.cien.vip.commands.Vip());
     	
     	//CienBanItem
     	event.registerServerCommand(new BanItem());
@@ -373,7 +379,7 @@ public class NeoELC {
     @EventHandler
     public void serverShutdown(FMLServerStoppingEvent event) {
     	CienDiscord.DISCORD.setChannelsTopic("Servidor Offline.");
-    	CienDiscord.DISCORD.sendMessage(":red_square: Servidor Desligado.");
+    	CienDiscord.DISCORD.sendMessage(":red_square: Servidor Desligando.");
     	System.out.println("Salvando dados...");
 		Properties.forEach(Properties::save);
 		for (Object player:MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
@@ -391,6 +397,12 @@ public class NeoELC {
 				}
 			}
 		}
+    }
+    
+    @EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+    	Properties.saveAll();
+    	CienDiscord.DISCORD.sendMessage(":red_square: Servidor Desligado.");
     }
     
     @SubscribeEvent
