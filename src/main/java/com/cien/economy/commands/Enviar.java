@@ -21,7 +21,7 @@ public class Enviar extends CienCommandBase {
 			player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /enviar <Player> <Quantidade>")));
 		} else {
 			if (Util.isOnline(args[0])) {
-				EntityPlayerMP receptor = Util.getOnlinePlayer(args[0]);
+				EntityPlayerMP receptor = Util.getOnlinePlayerInexact(args[0]);
 				LongDecimal dinheiro = LongDecimal.parse(args[1]);
 				if (dinheiro.floatValue() <= 0) {
 					player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"O Dinheiro não pode ser zero ou menor que zero.")));

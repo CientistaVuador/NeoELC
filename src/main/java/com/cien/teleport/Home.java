@@ -66,7 +66,7 @@ public class Home {
 			return false;
 		}
 		Home o = (Home)obj;
-		if ((o.name.equals(name)) && (o.owner.equals(owner))) {
+		if ((o.name.equalsIgnoreCase(name)) && (o.owner.equals(owner))) {
 			return true;
 		}
 		return false;

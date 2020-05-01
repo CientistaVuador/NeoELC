@@ -27,7 +27,7 @@ public class Vip extends CienCommandBase {
 				Util.sendMessage(player, Util.getErrorPrefix()+"Você não é vip.");
 			}
 		} else {
-			if (args.length != 1) {
+			if (args.length < 1) {
 				Util.sendMessage(player, Util.getErrorPrefix()+"Uso: /vi <setinfinityrole/setrole/setgroup/vip>");
 			} else {
 				String arg = args[0].toLowerCase();
@@ -58,7 +58,7 @@ public class Vip extends CienCommandBase {
 							Util.sendMessage(player, Util.getErrorPrefix()+"Erro: "+ex.getMessage());
 							return;
 						}
-						CienVIP.VIP.setVipInfinityRoleDiscordID(id);
+						CienVIP.VIP.setVipRoleDiscord(id);
 						Util.sendMessage(player, Util.getPrefix()+"Sucesso!");
 					}
 					return;

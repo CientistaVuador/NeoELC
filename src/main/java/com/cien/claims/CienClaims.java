@@ -128,6 +128,72 @@ public class CienClaims {
     	}, 5*60*20);
 	}
 	
+	public void verifyChunksAndClaims() {
+		for (WorldServer w:Util.getWorlds()) {
+			for (Chunk k:Util.getLoadedChunksOf(w)) {
+				int entities = 0;
+				for (List<?> l:k.entityLists) {
+					for (Object obj:l) {
+						if (!(obj instanceof EntityItem)) {
+							entities++;
+						}
+					}
+				}
+				boolean advice = false;
+				com.cien.claims.Claim c = null;
+				if (entities > 100) {
+					for (List<?> l:k.entityLists) {
+    					for (Object obj:l) {
+    						if (!(obj instanceof EntityItem)) {
+    							Entity e = (Entity)obj;
+    							e.setDead();
+    							if (c == null && !advice) {
+    								c = CienClaims.CLAIMS.getClaimInside(new PositiveLocation((int)e.posX, (int)e.posY, (int)e.posZ), w);
+    							}
+    							advice = true;
+    						}
+    					}
+    				}
+				}
+				if (advice) {
+					if (c != null) {
+						EntityPlayerMP owner = Util.getOnlinePlayer(c.getOwner());
+						if (owner != null) {
+							Util.sendMessage(owner, Util.getErrorPrefix()+"Aviso: Foram detectadas mais de 100 Entidades em um chunk de seu claim, elas foram removidas.");
+						}
+					}
+				}
+			}
+		}
+		for (com.cien.claims.Claim c:CienClaims.CLAIMS.getClaims()) {
+			int entities = 0;
+			Entity[] ents = c.getEntities();
+			if (ents == null) {
+				continue;
+			}
+			for (Entity e:ents) {
+				if (!(e instanceof EntityItem)) {
+					if (!e.isDead) {
+						entities++;
+					}
+				}
+			}
+			if (entities > c.getSize()) {
+				for (Entity e:ents) {
+    				if (!(e instanceof EntityItem)) {
+    					if (!e.isDead) {
+    						e.setDead();
+    					}
+    				}
+    			}
+				EntityPlayerMP player = Util.getOnlinePlayer(c.getOwner());
+    			if (player != null) {
+    				Util.sendMessage(player, Util.getErrorPrefix()+"Aviso: Foram detectadas mais de "+c.getSize()+" Entidades em seu claim, elas foram removidas.");
+    			}
+			}
+		}
+	}
+	
 	public String[] getDangerousEntities() {
 		return dangerEntity.toArray(new String[dangerEntity.size()]);
 	}

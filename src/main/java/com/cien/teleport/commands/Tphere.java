@@ -24,7 +24,7 @@ public class Tphere extends CienCommandBase {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /tphere <Player>")));
 			return;
 		}
-		EntityPlayerMP p = Util.getOnlinePlayer(args[0]);
+		EntityPlayerMP p = Util.getOnlinePlayerInexact(args[0]);
 		if (p == null) {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player Offline ou inválido.")));
 			return;

@@ -64,6 +64,7 @@ public final class CienLogin {
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onPlayerEntersServer(PlayerLoggedInEvent event) {
+		System.out.println("UUID de "+event.player.getCommandSenderName()+" é "+event.player.getUniqueID().toString());
     	if (getPassword(event.player.getCommandSenderName()) == null) {
     		NEED_REGISTER.add((EntityPlayerMP)event.player);
     	} else {

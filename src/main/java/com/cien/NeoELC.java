@@ -2,13 +2,10 @@ package com.cien;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.KeyPair;
-
 import com.cien.banitem.CienBanItem;
 import com.cien.banitem.commands.BanItem;
 import com.cien.chat.CienChat;
@@ -16,6 +13,7 @@ import com.cien.chat.commands.Desmutar;
 import com.cien.chat.commands.Global;
 import com.cien.chat.commands.Mutar;
 import com.cien.chat.commands.Privado;
+import com.cien.chat.commands.Real;
 import com.cien.chat.commands.Responder;
 import com.cien.chat.commands.SetNick;
 import com.cien.chat.commands.SetPrefix;
@@ -44,6 +42,7 @@ import com.cien.claims.commands.Trust;
 import com.cien.claims.commands.TrustList;
 import com.cien.claims.commands.Untrust;
 import com.cien.claims.commands.VerFlags;
+import com.cien.commands.ClearEntities;
 import com.cien.commands.Memory;
 import com.cien.commands.Ping;
 import com.cien.commands.TPS;
@@ -86,8 +85,10 @@ import com.cien.teleport.commands.Warp;
 import com.cien.vip.CienVIP;
 import com.cien.vip.commands.Ativar;
 import com.cien.vip.commands.GerarKey;
-import com.cien.votifier.KeyManager;
-import com.cien.votifier.Votifier;
+import com.cien.votifier.CienVotifier;
+import com.cien.votifier.commands.Caixa;
+import com.cien.votifier.commands.Vote;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -115,8 +116,6 @@ public class NeoELC {
 	boolean ok = false;
 	boolean utilStarted = false;
 	
-	int chunks = 100;
-	
     @EventHandler
     public void init(FMLInitializationEvent event) {
     	System.out.println("NeoELC Iniciado!");
@@ -124,22 +123,6 @@ public class NeoELC {
     		System.out.println("Salvando dados...");
     		Properties.forEach(Properties::save);
     	}, 6000);
-    	Util.schedule("Reset Chunk Meta", () -> {
-    		this.chunks = 100;
-    	}, 20);
-    	Util.run("Iniciar Votifier", () -> {
-    		try {
-    			KeyPair pair = KeyManager.readKeyPair();
-    			if (pair == null) {
-    				pair = KeyManager.newPair();
-    				KeyManager.writeKeyPair(pair);
-    			}
-    			Votifier votifier = new Votifier(pair, 1245);
-    			votifier.start();
-    		} catch (IOException ex) {
-    			ex.printStackTrace();
-    		}
-    	});
     	System.out.println("Servidor Iniciando.. Alterando o Gerenciador de Comandos através de reflection.");
     	CienCommandManager manager = new CienCommandManager();
     	MinecraftServer server = MinecraftServer.getServer();
@@ -277,6 +260,10 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienBanItem.BANITEM);
         MinecraftForge.EVENT_BUS.register(CienBanItem.BANITEM);
         
+        //CienVotifier
+        FMLCommonHandler.instance().bus().register(CienVotifier.VOTIFIER);
+        MinecraftForge.EVENT_BUS.register(CienVotifier.VOTIFIER);
+        
         CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 2)");
     }
     
@@ -286,6 +273,7 @@ public class NeoELC {
     	event.registerServerCommand(new Memory());
     	event.registerServerCommand(new TPS());
     	event.registerServerCommand(new Ping());
+    	event.registerServerCommand(new ClearEntities());
     	
     	//CienLogin
     	event.registerServerCommand(new Login());
@@ -321,6 +309,7 @@ public class NeoELC {
     	event.registerServerCommand(new Staff());
     	event.registerServerCommand(new Privado());
     	event.registerServerCommand(new Responder());
+    	event.registerServerCommand(new Real());
     	
     	//CienClaims
     	event.registerServerCommand(new Blocks());
@@ -372,6 +361,10 @@ public class NeoELC {
     	
     	//CienBanItem
     	event.registerServerCommand(new BanItem());
+    	
+    	//CienVotifier
+    	event.registerServerCommand(new Caixa());
+    	event.registerServerCommand(new Vote());
     	
     	CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 3)");
     }

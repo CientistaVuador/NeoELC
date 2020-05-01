@@ -62,7 +62,7 @@ public class Warp {
 			return false;
 		}
 		Warp o = (Warp)obj;
-		if (o.name.equals(name)) {
+		if (o.name.equalsIgnoreCase(name)) {
 			return true;
 		}
 		return false;

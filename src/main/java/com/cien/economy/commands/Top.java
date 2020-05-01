@@ -36,7 +36,12 @@ public class Top extends CienCommandBase {
 			Util.sendMessage(player, Util.getErrorPrefix()+"Apenas você está online.");
 		} else {
 			Util.sendMessage(player, Util.getPrefix()+"Top 10 Players Mais Ricos Online:");
+			int max = 0;
 			for (EntityPlayerMP p:on) {
+				if (max == 10) {
+					break;
+				}
+				max++;
 				Util.sendMessage(player, " §6"+p.getCommandSenderName()+" - C$ "+CienEconomy.ECONOMY.getPlayerMoney(p.getCommandSenderName()).toString());
 			}
 		}

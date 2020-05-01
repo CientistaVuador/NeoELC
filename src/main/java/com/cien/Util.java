@@ -189,6 +189,55 @@ public class Util {
 		return 0;
 	}
 	
+	public static String getPlayerInexact(String p) {
+		EntityPlayerMP s = getOnlinePlayerInexact(p);
+		if (s != null) {
+			return s.getCommandSenderName();
+		}
+		p = p.toLowerCase();
+		String[] prop = Properties.getAllProperties();
+		List<String> f = new ArrayList<>();
+		for (int i = 0; i < prop.length; i++) {
+			String g = prop[i];
+			if (g.startsWith("(")) {
+				continue;
+			}
+			f.add(g);
+		}
+		
+		String[] unfiltered = f.toArray(new String[f.size()]);
+		String[] filtered = new String[unfiltered.length];
+		for (int i = 0; i < filtered.length; i++) {
+			filtered[i] = unfiltered[i].toLowerCase();
+		}
+		
+		int index = 0;
+		for (String w:filtered) {
+			if (w.equals(p)) {
+				return unfiltered[index];
+			}
+			index++;
+		}
+		
+		index = 0;
+		for (String w:filtered) {
+			if (w.startsWith(p)) {
+				return unfiltered[index];
+			}
+			index++;
+		}
+		
+		index = 0;
+		for (String w:filtered) {
+			if (w.contains(p)) {
+				return unfiltered[index];
+			}
+			index++;
+		}
+		
+		return null;
+	}
+	
 	public static int convertPlayerDirectionToSignRotation(int dir) {
 		switch (dir) {
 		case 0:
@@ -201,6 +250,41 @@ public class Util {
 			return 12;
 		}
 		return 0;
+	}
+	
+	public static EntityPlayerMP getOnlinePlayerInexact(String p) {
+		p = p.toLowerCase();
+		EntityPlayerMP[] online = getOnlinePlayers();
+		String[] cache = new String[online.length];
+		int cacheSize = 0;
+		
+		int cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			String name = player.getCommandSenderName().toLowerCase();
+			cache[cacheSize] = name;
+			cacheSize++;
+			if (name.equals(p)) {
+				return player;
+			}
+		}
+		
+		cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			if (cache[cacheIndex].startsWith(p)) {
+				return player;
+			}
+			cacheIndex++;
+		}
+		
+		cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			if (cache[cacheIndex].contains(p)) {
+				return player;
+			}
+			cacheIndex++;
+		}
+		
+		return null;
 	}
 	
 	public static int convertPlayerDirectionToChestRotation(int dir) {

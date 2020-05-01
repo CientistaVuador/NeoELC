@@ -126,7 +126,7 @@ public class CienTeleport {
 	
 	public Home getHome(String name, String owner) {
 		for (Home h:getHomes()) {
-			if (h.getName().equals(name) && h.getOwner().equals(owner)) {
+			if (h.getName().equalsIgnoreCase(name) && h.getOwner().equals(owner)) {
 				return h;
 			}
 		}
@@ -135,7 +135,7 @@ public class CienTeleport {
 	
 	public Warp getWarp(String name) {
 		for (Warp h:getWarps()) {
-			if (h.getName().equals(name)) {
+			if (h.getName().equalsIgnoreCase(name)) {
 				return h;
 			}
 		}
@@ -144,7 +144,7 @@ public class CienTeleport {
 	
 	public boolean containsHome(String name, String owner) {
 		for (Home h:getHomes()) {
-			if (h.getName().equals(name) && h.getOwner().equals(owner)) {
+			if (h.getName().equalsIgnoreCase(name) && h.getOwner().equals(owner)) {
 				return true;
 			}
 		}
@@ -153,7 +153,7 @@ public class CienTeleport {
 	
 	public boolean containsWarp(String name) {
 		for (Warp h:getWarps()) {
-			if (h.getName().equals(name)) {
+			if (h.getName().equalsIgnoreCase(name)) {
 				return true;
 			}
 		}

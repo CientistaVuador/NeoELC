@@ -123,7 +123,7 @@ public class CienVIP {
 		if (jda == null) {
 			return null;
 		}
-		return jda.getRoleById(vipRoleDiscord);
+		return jda.getRoleById(this.vipInfinityRoleDiscord);
 	}
 	
 	public boolean isVip(String player) {

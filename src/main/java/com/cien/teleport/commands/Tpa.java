@@ -21,7 +21,7 @@ public class Tpa extends CienCommandBase {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /tpa <Player>")));
 			return;
 		}
-		EntityPlayerMP tpPlayer = Util.getOnlinePlayer(args[0]);
+		EntityPlayerMP tpPlayer = Util.getOnlinePlayerInexact(args[0]);
 		if (tpPlayer == null) {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player offline ou inválido.")));
 			return;
