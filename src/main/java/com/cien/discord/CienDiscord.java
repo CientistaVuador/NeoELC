@@ -459,17 +459,19 @@ public class CienDiscord implements EventListener {
 		CienDiscord.DISCORD.sendMessage(":small_red_triangle_down: **"+event.player.getCommandSenderName()+" Saiu do servidor.**");
 	}
 	
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
 	public void onPlayerDies(LivingDeathEvent event) {
 		if (event.entityLiving instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) event.entityLiving;
 			DamageSource source = event.source;
+			String text = null;
 			if (source != null && source.damageType != null) {
 		        IChatComponent c = source.func_151519_b(player);
-		        sendMessage(":regional_indicator_f: **"+c.getUnformattedText()+".**");
+		        text = ":regional_indicator_f: **"+c.getUnformattedText()+".**";
 			} else {
-				sendMessage(":regional_indicator_f: **"+player.getCommandSenderName()+" Morreu de causas desconhecidas.**");
+				text = ":regional_indicator_f: **"+player.getCommandSenderName()+" Morreu de causas desconhecidas.**";
 			}
+			sendMessage(text);
 		}
 	}
 	

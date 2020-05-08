@@ -12,6 +12,7 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.WorldSettings;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
@@ -165,6 +166,10 @@ public class CienEconomy {
 		if (event.action.equals(PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)) {
 			ChestShop f = getChestShop(player.worldObj.provider.getDimensionName(), event.x, event.y, event.z);
 			if (f != null) {
+				if (player.theItemInWorldManager.getGameType().equals(WorldSettings.GameType.CREATIVE)) {
+					Util.sendMessage(player, Util.getErrorPrefix()+"Saia do criativo para usar a loja.");
+					return;
+				}
 				if (player.getCommandSenderName().equals(f.getOwner())) {
 					Util.sendMessage(player, Util.getErrorPrefix()+"Você não pode comprar ou vender na própria loja.");
 				} else {

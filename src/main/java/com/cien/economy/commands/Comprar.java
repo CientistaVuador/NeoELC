@@ -57,7 +57,7 @@ public class Comprar extends CienCommandBase {
 		}
 		int transfered = 0;
 		for (int i = 0; i < quantity; i++) {
-			if (CienEconomy.ECONOMY.canRemovePlayerMoney(player.getCommandSenderName(), shop.getPrice())) {
+			if (CienEconomy.ECONOMY.canRemovePlayerMoney(player.getCommandSenderName(), shop.getPrice()) || shop.isUnlimited()) {
 				if (shop.transferOneToPlayer(player)) {
 					CienEconomy.ECONOMY.removePlayerMoney(player.getCommandSenderName(), shop.getPrice());
 					if (!shop.isUnlimited()) {

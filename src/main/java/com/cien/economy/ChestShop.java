@@ -110,6 +110,18 @@ public class ChestShop {
 				if (keepNbt) {
 					NBTTagCompound itemNbt = item.getTagCompound();
 					NBTTagCompound compareNbt = s.getTagCompound();
+					if (itemNbt == compareNbt) {
+						return true;
+					}
+				    if (itemNbt != null && itemNbt.hasNoTags() && compareNbt == null) {
+				    	return true;
+				    }
+				    if (compareNbt != null && compareNbt.hasNoTags() && itemNbt == null) {
+				    	return true;
+				    }
+					if (itemNbt == null || compareNbt == null) {
+						return false;
+					}
 					return itemNbt.equals(compareNbt);
 				} 
 				return true;

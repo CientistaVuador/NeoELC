@@ -10,7 +10,9 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.CommandEvent;
@@ -46,6 +48,29 @@ public final class CienLogin {
 	public void setPassword(String player, String password) {
 		Properties prop = Properties.getProperties(player);
 		prop.set("password", password);
+	}
+	
+	public boolean isBuggy(String player) {
+		EntityPlayerMP p = Util.getOnlinePlayer(player);
+		if (p == null) {
+			return false;
+		}
+		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
+			return true;
+		}
+		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX+1, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
+			return true;
+		}
+		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX-1, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
+			return true;
+		}
+		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ+1)) == Block.getIdFromBlock(Blocks.portal)) {
+			return true;
+		}
+		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ-1)) == Block.getIdFromBlock(Blocks.portal)) {
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean shouldBeFreezed(String name) {
@@ -86,6 +111,9 @@ public final class CienLogin {
 	public void onPlayerWalk(LivingUpdateEvent event) {
 		if (event.entityLiving instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
+			if (isBuggy(player.getCommandSenderName())) {
+				return;
+			}
 			if (shouldBeFreezed(player.getCommandSenderName())) {
 				player.setPositionAndUpdate(player.lastTickPosX, player.lastTickPosY, player.lastTickPosZ);
 			}

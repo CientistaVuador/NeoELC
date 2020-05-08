@@ -523,6 +523,7 @@ public final class Claim {
 			if (s.equals(flag)) {
 				if (!value) {
 					flags.remove(flag);
+					save();
 				}
 				return;
 			}

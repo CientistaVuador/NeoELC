@@ -58,7 +58,7 @@ public class Vender extends CienCommandBase {
 		}
 		int transfered = 0;
 		for (int i = 0; i < quantity; i++) {
-			if (CienEconomy.ECONOMY.canRemovePlayerMoney(shop.getOwner(), shop.getPrice())) {
+			if (CienEconomy.ECONOMY.canRemovePlayerMoney(shop.getOwner(), shop.getPrice()) || shop.isUnlimited()) {
 				if (shop.transferOneToChest(player)) {
 					CienEconomy.ECONOMY.addPlayerMoney(player.getCommandSenderName(), shop.getPrice());
 					if (!shop.isUnlimited()) {

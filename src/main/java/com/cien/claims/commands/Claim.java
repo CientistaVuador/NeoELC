@@ -19,6 +19,10 @@ public class Claim extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		Properties prop = Properties.getProperties(player.getCommandSenderName());
+		if (player.worldObj.provider.getDimensionName().equals("The End")) {
+			Util.sendMessage(player, Util.getErrorPrefix()+"Não é permitido claims no end.");
+			return;
+		}
 		com.cien.claims.Claim claim;
 		if (args.length == 0) {
 			PositiveLocation loc1 = (PositiveLocation) prop.getMemory("pos1");

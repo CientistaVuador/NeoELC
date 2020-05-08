@@ -3,6 +3,7 @@ package com.cien.claims.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
+import com.cien.permissions.CienPermissions;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -21,7 +22,7 @@ public class Abandonclaim extends CienCommandBase {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não está sobre nenhum claim.")));
 			return;
 		}
-		if (!f.getOwner().equals(player.getCommandSenderName())) {
+		if (!f.getOwner().equals(player.getCommandSenderName()) && !CienPermissions.PERMISSIONS.hasPermission(player.getCommandSenderName(), "admin.abandonclaim")) {
 			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"O Claim não é seu.")));
 			return;
 		}

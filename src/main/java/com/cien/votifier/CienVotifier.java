@@ -51,6 +51,12 @@ public class CienVotifier implements VoteListener {
 		}, 3);
 	}
 	
+	public void shutdown() {
+		if (votifier != null) {
+			votifier.shutdown();
+		}
+	}
+	
 	public ItemStack[] getItems() {
 		ItemStack[] array = new ItemStack[items.size()];
 		for (int i = 0; i < array.length; i++) {

@@ -88,7 +88,6 @@ import com.cien.vip.commands.GerarKey;
 import com.cien.votifier.CienVotifier;
 import com.cien.votifier.commands.Caixa;
 import com.cien.votifier.commands.Vote;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -115,6 +114,8 @@ public class NeoELC {
 	int ticks = 0;
 	boolean ok = false;
 	boolean utilStarted = false;
+	long shutdown = System.currentTimeMillis() + (2*60*60*1000);
+	long lastSec = 0;
 	
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -123,6 +124,22 @@ public class NeoELC {
     		System.out.println("Salvando dados...");
     		Properties.forEach(Properties::save);
     	}, 6000);
+    	Util.schedule("Shutdown", () -> {
+    		long secs = (shutdown - System.currentTimeMillis())/1000;
+    		if (secs > 30) {
+    			return;
+    		}
+    		if (lastSec != secs && secs > 0) {
+    			Util.sendMessageToEveryone(Util.getPrefix()+"Servidor reiniciando em "+secs+" segundo(s).");
+    			CienDiscord.DISCORD.sendMessage(":regional_indicator_r: Reiniciando em "+secs+" segundos(s).");
+    		} 
+    		if (secs <= 0) {
+    			Util.sendMessageToEveryone(Util.getPrefix()+"Servidor Reiniciando...");
+    			CienDiscord.DISCORD.sendMessage(":regional_indicator_r: Servidor Reiniciando...");
+    			MinecraftServer.getServer().initiateShutdown();
+    		}
+    		lastSec = secs;
+    	}, 10);
     	System.out.println("Servidor Iniciando.. Alterando o Gerenciador de Comandos através de reflection.");
     	CienCommandManager manager = new CienCommandManager();
     	MinecraftServer server = MinecraftServer.getServer();
@@ -396,6 +413,8 @@ public class NeoELC {
     public void serverStopped(FMLServerStoppedEvent event) {
     	Properties.saveAll();
     	CienDiscord.DISCORD.sendMessage(":red_square: Servidor Desligado.");
+    	Properties.cleanup();
+    	CienVotifier.VOTIFIER.shutdown();
     }
     
     @SubscribeEvent

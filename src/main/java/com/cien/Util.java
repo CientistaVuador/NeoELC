@@ -18,6 +18,7 @@ import com.cien.data.Node;
 import com.cien.data.Properties;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -493,9 +494,9 @@ public class Util {
 				}
 				continue;
 			}
-			if ((spaceLeft - word.length()) >= 0) {
+			if ((spaceLeft - (word.length() + 1)) >= 0) {
 				b.append(word);
-				spaceLeft -= word.length();
+				spaceLeft -= word.length() + 1;
 				if (i != (words.size() - 1) && spaceLeft != 0) {
 					String next = null;
 					if (words.size() > (i + 1)) {
@@ -527,7 +528,7 @@ public class Util {
 		return PortugueseStringTranslate.FALLBACK.translateKey(stack.getUnlocalizedName()+".name");
 	}
 	
-	public static void sendMessage(EntityPlayerMP player, String msg) {
+	public static void sendMessage(ICommandSender player, String msg) {
 		player.addChatMessage(new ChatComponentText(Util.fixColors(msg)));
 	}
 	
@@ -743,30 +744,30 @@ public class Util {
 					under = false;
 					italian = false;
 				}
-				continue;
 			}
 			if (c == '§') {
 				color = true;
-				continue;
-			}
-			b.append('§');
-			b.append(lastColor);
-			if (bold) {
-				b.append("§l");
-			}
-			if (spoiler) {
-				b.append("§k");
-			}
-			if (cut) {
-				b.append("§m");
-			}
-			if (under) {
-				b.append("§n");
-			}
-			if (italian) {
-				b.append("§o");
 			}
 			b.append(c);
+			if (c == ' ') {
+				b.append('§');
+				b.append(lastColor);
+				if (bold) {
+					b.append("§l");
+				}
+				if (spoiler) {
+					b.append("§k");
+				}
+				if (cut) {
+					b.append("§m");
+				}
+				if (under) {
+					b.append("§n");
+				}
+				if (italian) {
+					b.append("§o");
+				}
+			}
 		}
 		return b.toString();
 	}

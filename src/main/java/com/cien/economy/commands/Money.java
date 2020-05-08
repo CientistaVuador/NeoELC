@@ -2,7 +2,6 @@ package com.cien.economy.commands;
 
 import com.cien.CienCommandBase;
 import com.cien.Util;
-import com.cien.data.Properties;
 import com.cien.economy.CienEconomy;
 import com.cien.economy.LongDecimal;
 
@@ -21,11 +20,12 @@ public class Money extends CienCommandBase {
 		if (args.length == 0) {
 			player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"C$ "+CienEconomy.ECONOMY.getPlayerMoney(player.getCommandSenderName()))));
 		} else {
-			if (Properties.hasProperties(args[0])) {
+			String f = Util.getPlayerInexact(args[0]);
+			if (f == null) {
 				player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Player Inválido.")));
 			} else {
-				LongDecimal money = CienEconomy.ECONOMY.getPlayerMoney(args[0]);
-				player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Dinheiro de "+args[0]+": C$ "+money.toString())));
+				LongDecimal money = CienEconomy.ECONOMY.getPlayerMoney(f);
+				player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Dinheiro de "+f+": C$ "+money.toString())));
 			}
 		}
 	}

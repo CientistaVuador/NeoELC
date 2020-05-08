@@ -34,6 +34,8 @@ public class Trust extends CienCommandBase {
 		f.setFlag("permitirUsarItem#"+args[0], true);
 		f.setFlag("permitirColocar#"+args[0], true);
 		f.setFlag("permitirQuebrar#"+args[0], true);
+		f.setFlag("danificarEntidades#"+args[0], true);
+		f.setFlag("permitirUsarItemBloqueado#"+args[0], true);
 		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
 	}
 

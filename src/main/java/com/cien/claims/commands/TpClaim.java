@@ -29,6 +29,10 @@ public class TpClaim extends CienCommandBase {
 				return;
 			}
 			com.cien.claims.Claim c = CienClaims.CLAIMS.getClaim(id);
+			if (c == null) {
+				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"ID Inválido.")));
+				return;
+			}
 			if (!CienPermissions.PERMISSIONS.hasPermission(player.getCommandSenderName(), "admin.tpclaim")) {
 				if (!c.getOwner().equals(player.getCommandSenderName())) {
 					player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Esse claim não é seu.")));

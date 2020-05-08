@@ -2,6 +2,7 @@ package com.cien.vip.commands;
 
 import com.cien.CienCommandBase;
 import com.cien.Util;
+import com.cien.data.Properties;
 import com.cien.discord.CienDiscord;
 import com.cien.vip.CienVIP;
 import com.cien.vip.Key;
@@ -52,6 +53,8 @@ public class Ativar extends CienCommandBase {
 			return;
 		}
 		Util.sendMessage(player, Util.getPrefix()+"Vip Ativado!");
+		Properties prop = Properties.getProperties("(DiscordUser)"+s.getIdLong());
+		prop.set("vipKey", key);
 		MinecraftForge.EVENT_BUS.post(new VipActivationEvent(player, k));
 	}
 

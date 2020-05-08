@@ -13,6 +13,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -23,9 +24,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
+import net.minecraftforge.event.world.ExplosionEvent;
 
 public class CienClaims {
 
@@ -317,6 +321,18 @@ public class CienClaims {
 		return null;
 	}
 	
+	public Claim getClaimInsideShield(PositiveLocation loc, WorldServer w) {
+		for (Claim f:getClaims()) {
+			if (!f.getWorld().equals(w.provider.getDimensionName())) {
+				continue;
+			}
+			if (f.getShield().isInside(loc)) {
+				return f;
+			}
+		}
+		return null;
+	}
+	
 	public long getBlocksOf(String player) {
 		Properties prop = Properties.getProperties(player);
 		String blocks = prop.get("claimBlocks");
@@ -350,6 +366,42 @@ public class CienClaims {
 	
 	public void removeBlocksOf(String player, long blocks) {
 		addBlocksTo(player, blocks * -1);
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
+	public void onEntityDamage(LivingHurtEvent event) {
+		EntityLivingBase ent = event.entityLiving;
+		if (ent instanceof EntityPlayerMP) {
+			return;
+		}
+		Entity damager = event.source.getSourceOfDamage();
+		Claim inside = getClaimInside(new PositiveLocation((int)ent.posX, (int)ent.posY, (int)ent.posZ), (WorldServer)ent.worldObj);
+		if (inside != null) {
+			String name = EntityList.getEntityString(ent);
+			if (inside.getFlag("permitirDanoEm#"+name) || inside.getFlag("permitirDanoEm#*")) {
+				return;
+			}
+			if (damager instanceof EntityPlayerMP) {
+				EntityPlayerMP mp = (EntityPlayerMP)damager;
+				if (mp.getCommandSenderName().equals(inside.getOwner())) {
+					return;
+				}
+				if (inside.getFlag("danificarEntidades#"+mp.getCommandSenderName()) || inside.getFlag("danificarEntidades#*")) {
+					return;
+				}
+			}
+			event.setCanceled(true);
+		}
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
+	public void onExplosion(ExplosionEvent.Start event) {
+		Claim c = getClaimInsideShield(new PositiveLocation((int)event.explosion.explosionX, (int)event.explosion.explosionY, (int)event.explosion.explosionZ), (WorldServer)event.world);
+		if (c != null) {
+			if (!c.getFlag("permitirExplosao")) {
+				event.setCanceled(true);
+			}
+		}
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
@@ -587,6 +639,31 @@ public class CienClaims {
 			return c.getDownRightCorner().add(3, 0, -3);
 		}
 		return c.getUpperLeftCorner().add(-3, 0, 3);
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onEntityInteract(EntityInteractEvent event) {
+		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
+		if (!(event.target instanceof EntityPlayerMP)) {
+			return;
+		}
+		if (player == null) {
+			return;
+		}
+		ItemStack hand = player.getCurrentEquippedItem();
+		if (hand == null) {
+			return;
+		}
+		Claim c = getClaimInside((EntityPlayerMP) event.target);
+		if (c == null) {
+			return;
+		}
+		String handName = Util.getItemNameID(hand.getItem());
+		if (hasBlockedItem(handName+":"+hand.getItemDamage())) {
+			if (!c.getFlag("permitirUsarItemBloqueado#"+player.getCommandSenderName()) && !c.getFlag("permitirUsarItemBloqueado#*")) {
+				event.setCanceled(true);
+			}
+		}
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = false)
