@@ -4,7 +4,6 @@ import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.permissions.CienPermissions;
 import com.cien.votifier.CienVotifier;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 

@@ -20,6 +20,8 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.event.ClickEvent;
+import net.minecraft.event.HoverEvent;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,6 +31,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.StringTranslate;
@@ -529,7 +534,7 @@ public class Util {
 	}
 	
 	public static void sendMessage(ICommandSender player, String msg) {
-		player.addChatMessage(new ChatComponentText(Util.fixColors(msg)));
+		player.addChatMessage(msgToComponent(msg));
 	}
 	
 	public static Node getNodeFromItemStack(String name, ItemStack s, boolean keepNbt) {
@@ -770,6 +775,202 @@ public class Util {
 			}
 		}
 		return b.toString();
+	}
+	
+	public static IChatComponent msgToComponent(String msg) {
+		StringBuilder b = new StringBuilder(64);
+		boolean color = false;
+		
+		IChatComponent main = new ChatComponentText("");
+		
+		IChatComponent current = null;
+		ChatStyle style = new ChatStyle();
+		
+		for (char c:msg.toCharArray()) {
+			if (color) {
+				color = false;
+				if (c == 'l') {
+					style.setBold(true);
+				}
+				if (c == 'k') {
+					style.setObfuscated(true);
+				}
+				if (c == 'm') {
+					style.setStrikethrough(true);
+				}
+				if (c == 'n') {
+					style.setUnderlined(true);
+				}
+				if (c == 'o') {
+					style.setItalic(true);
+				}
+				if (c == 'a') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.GREEN);
+				}
+				if (c == 'b') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.BLUE);
+				}
+				if (c == 'c') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.RED);
+				}
+				if (c == 'd') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.LIGHT_PURPLE);
+				}
+				if (c == 'e') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.YELLOW);
+				}
+				if (c == 'f') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.WHITE);
+				}
+				if (c == '0') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.BLACK);
+				}
+				if (c == '1') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_BLUE);
+				}
+				if (c == '2') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_GREEN);
+				}
+				if (c == '3') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.AQUA);
+				}
+				if (c == '4') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_RED);
+				}
+				if (c == '5') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_PURPLE);
+				}
+				if (c == '6') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.GOLD);
+				}
+				if (c == '7') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.GRAY);
+				}
+				if (c == '8') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_GRAY);
+				}
+				if (c == '9') {
+					style.setBold(false);
+					style.setObfuscated(false);
+					style.setStrikethrough(false);
+					style.setUnderlined(false);
+					style.setItalic(false);
+					style.setColor(EnumChatFormatting.DARK_AQUA);
+				}
+			}
+			if (c == '§') {
+				color = true;
+			}
+			if (c == ' ') {
+				String text = b.toString();
+				current = new ChatComponentText(text);
+				boolean http = false;
+				if (text.startsWith("http")) {
+					http = true;
+					style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
+					style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
+				}
+				style = style.createDeepCopy();
+				if (http) {
+					style.setChatClickEvent(null);
+					style.setChatHoverEvent(null);
+				}
+				main.appendSibling(current);
+				current.setChatStyle(style);
+				b.setLength(0);
+				
+				
+				main.appendSibling(new ChatComponentText(" "));
+				continue;
+			}
+			b.append(c);
+		}
+		if (b.length() != 0) {
+			String text = b.toString();
+			current = new ChatComponentText(text);
+			if (text.startsWith("http")) {
+				style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
+				style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
+			}
+			main.appendSibling(current);
+			current.setChatStyle(style);
+		}
+		return main;
 	}
 	
 	public static String getPrefix() {

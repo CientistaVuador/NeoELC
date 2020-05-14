@@ -1,12 +1,12 @@
 package com.cien.claims.commands;
 
 import com.cien.CienCommandBase;
+import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.WorldServer;
 
 public class ClaimAtual extends CienCommandBase {
 
@@ -17,11 +17,20 @@ public class ClaimAtual extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		com.cien.claims.Claim f = CienClaims.CLAIMS.getClaimInside(player);
+		boolean close = false;
 		if (f == null) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não está sobre nenhum claim.")));
-			return;
+			close = true;
+			f = CienClaims.CLAIMS.getClaimInsideShield(new PositiveLocation((int)player.posX, (int)player.posY, (int)player.posZ), (WorldServer)player.worldObj);
+			if (f == null) {
+				Util.sendMessage(player, Util.getErrorPrefix()+"Não há nenhum claim próximo.");
+				return;
+			}
 		}
-		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght())));
+		if (!close) {
+			Util.sendMessage(player, Util.getPrefix()+"Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
+		} else {
+			Util.sendMessage(player, Util.getPrefix()+"(Próximo de você) Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
+		}
 	}
 
 }

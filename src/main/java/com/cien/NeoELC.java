@@ -419,6 +419,8 @@ public class NeoELC {
     
     @SubscribeEvent
     public void serverTick(ServerTickEvent event) {
+    	
+    	
     	if (!utilStarted) {
     		utilStarted = true;
     		Util.load();
