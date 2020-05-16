@@ -62,12 +62,15 @@ import com.cien.economy.commands.Top;
 import com.cien.economy.commands.Vender;
 import com.cien.kits.CienKits;
 import com.cien.kits.commands.KitBuilder;
+import com.cien.levels.CienLevels;
+import com.cien.levels.commands.Level;
 import com.cien.login.CienLogin;
 import com.cien.login.commands.Login;
 import com.cien.login.commands.Register;
 import com.cien.login.commands.SetPassword;
 import com.cien.permissions.CienPermissions;
 import com.cien.permissions.commands.Perms;
+import com.cien.superchat.SuperChatClickCommand;
 import com.cien.teleport.commands.DelHome;
 import com.cien.teleport.commands.DelWarp;
 import com.cien.teleport.commands.GotoHome;
@@ -82,6 +85,12 @@ import com.cien.teleport.commands.Tphere;
 import com.cien.teleport.commands.Tpp;
 import com.cien.teleport.commands.Tprc;
 import com.cien.teleport.commands.Warp;
+import com.cien.utils.CienUtils;
+import com.cien.utils.commands.Claimlag;
+import com.cien.utils.commands.Invsee;
+import com.cien.utils.commands.Lagtop;
+import com.cien.utils.commands.Tiletick;
+import com.cien.utils.commands.Vanish;
 import com.cien.vip.CienVIP;
 import com.cien.vip.commands.Ativar;
 import com.cien.vip.commands.GerarKey;
@@ -100,12 +109,15 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.command.ServerCommandManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
 @Mod(modid = "NeoELC", version = "1.0", acceptedMinecraftVersions = "*", acceptableRemoteVersions = "*", acceptableSaveVersions = "*", name = "NeoELC")
 public class NeoELC {
@@ -281,6 +293,14 @@ public class NeoELC {
         FMLCommonHandler.instance().bus().register(CienVotifier.VOTIFIER);
         MinecraftForge.EVENT_BUS.register(CienVotifier.VOTIFIER);
         
+        //CienLevels
+        FMLCommonHandler.instance().bus().register(CienLevels.LEVELS);
+        MinecraftForge.EVENT_BUS.register(CienLevels.LEVELS);
+        
+        //CienUtils
+        FMLCommonHandler.instance().bus().register(CienUtils.UTILS);
+        MinecraftForge.EVENT_BUS.register(CienUtils.UTILS);
+        
         CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 2)");
     }
     
@@ -383,6 +403,19 @@ public class NeoELC {
     	event.registerServerCommand(new Caixa());
     	event.registerServerCommand(new Vote());
     	
+    	//SuperChat
+    	event.registerServerCommand(new SuperChatClickCommand()); //internal use
+    	
+    	//CienLevels
+    	event.registerServerCommand(new Level());
+    	
+    	//CienUtils
+    	event.registerServerCommand(new Vanish());
+    	event.registerServerCommand(new Invsee());
+    	event.registerServerCommand(new Tiletick());
+    	event.registerServerCommand(new Claimlag());
+    	event.registerServerCommand(new Lagtop());
+    	
     	CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 3)");
     }
     
@@ -466,5 +499,18 @@ public class NeoELC {
     	}
 		System.out.println(event.sender.getCommandSenderName()+" executou /"+event.command.getCommandName()+" "+builder.toString());
 	}
+    
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
+    public void onDragonKilled(LivingDeathEvent event) {
+    	if (event.entityLiving instanceof EntityDragon) {
+    		Entity e = event.source.getSourceOfDamage();
+    		if (e instanceof EntityPlayerMP) {
+    			EntityPlayerMP player = (EntityPlayerMP) e;
+    			Util.sendMessageToEveryone("§5O Dragão foi morto por "+player.getCommandSenderName()+"! ~gg:");
+    		} else {
+    			Util.sendMessageToEveryone("§5O Dragão foi morto! ~gg:");
+    		}
+    	}
+    }
     
 }

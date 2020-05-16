@@ -249,6 +249,16 @@ public final class Claim {
 		}
 	}
 	
+	public EntityPlayerMP[] getPlayersInside() {
+		List<EntityPlayerMP> list = new ArrayList<>();
+		for (EntityPlayerMP online:Util.getOnlinePlayers()) {
+			if (isInside(online)) {
+				list.add(online);
+			}
+		}
+		return list.toArray(new EntityPlayerMP[list.size()]);
+	}
+	
 	public Entity[] getEntities() {
 		WorldServer world = Util.getWorld(this.world);
 		if (world == null) {

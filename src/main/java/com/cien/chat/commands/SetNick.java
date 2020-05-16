@@ -4,10 +4,8 @@ import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.chat.CienChat;
 import com.cien.permissions.CienPermissions;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class SetNick extends CienCommandBase {
 
@@ -30,14 +28,14 @@ public class SetNick extends CienCommandBase {
 				}
 				String nick = builder.toString();
 				if (Util.getRealLenghtOfMessage(nick) > 16) {
-					player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"O máximo é 16 caracteres")));
+					player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"O máximo é 16 caracteres"));
 					return;
 				}
 				CienChat.CHAT.setPlayerNick(player.getCommandSenderName(), nick);
 			}
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Nick alterado com Sucesso!")));
+			player.addChatMessage(Util.fixColors(Util.getPrefix()+"Nick alterado com Sucesso!"));
 		} else {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão."));
 		}
 	}
 

@@ -403,18 +403,16 @@ public class ChestShop {
 		}
 		String[] text = getSignText();
 		String[] textFound = sign.signText;
-		for (int i = 0; i < 4; i++) {
-			String a = text[i];
-			String b = textFound[i];
-			if (a == null && b == null) {
-				continue;
-			}
-			if (a == null || b == null) {
-				return false;
-			}
-			if (!a.equals(b)) {
-				return false;
-			}
+		String a = text[0];
+		String b = textFound[0];
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		if (!a.equals(b)) {
+			return false;
 		}
 		return true;
 	}
@@ -471,7 +469,11 @@ public class ChestShop {
 		if (!isWorldLoaded()) {
 			return true;
 		}
-		return getChestTileEntity() != null;
+		TileEntity ent = getChestTileEntity();
+		if (ent == null) {
+			ent = getChestTileEntity();
+		}
+		return ent != null;
 	}
 	
 	public Claim getCurrentClaim() {

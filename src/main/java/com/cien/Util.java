@@ -16,6 +16,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import com.cien.data.Node;
 import com.cien.data.Properties;
+import com.cien.superchat.SuperChatProcessor;
+import com.cien.superchat.SuperChatProcessorManager;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandSender;
@@ -701,11 +704,16 @@ public class Util {
 	}
 	
 	public static void sendMessageToEveryone(String msg) {
-		ServerConfigurationManager manager = getServerManager();
-		manager.sendChatMsg(new ChatComponentText(fixColors(msg)));
+		for (EntityPlayerMP p:getOnlinePlayers()) {
+			p.addChatMessage(msgToComponent(msg));
+		}
 	}
 	
-	public static String fixColors(String msg) {
+	public static IChatComponent fixColors(String msg) {
+		return msgToComponent(msg);
+	}
+	
+	public static String fixColorsOfMsg(String msg) {
 		StringBuilder b = new StringBuilder(64);
 		char lastColor = 'f';
 		
@@ -777,6 +785,70 @@ public class Util {
 		return b.toString();
 	}
 	
+	private static IChatComponent superChatPreProcess(String arg, IChatComponent original) {
+		arg = arg.substring(1); //remove the ~
+		List<String> args = new ArrayList<>();
+		String name = null;
+		StringBuilder b = new StringBuilder(64);
+		StringBuilder formatted = new StringBuilder(64);
+		boolean escape = false;
+		for (char c:arg.toCharArray()) {
+			if (escape) {
+				b.append(c);
+				escape = false;
+				continue;
+			}
+			if (c == '\\') {
+				escape = true;
+				b.append(c);
+				if (name != null) {
+					formatted.append(c);
+				}
+				continue;
+			}
+			if (c == ':' && name == null) {
+				name = b.toString();
+				b.setLength(0);
+				continue;
+			}
+			if (c == ',') {
+				args.add(b.toString());
+				b.setLength(0);
+				formatted.append(' ');
+				continue;
+			}
+			b.append(c);
+			if (name != null) {
+				formatted.append(c);
+			}
+		}
+		if (b.length() != 0) {
+			args.add(b.toString());
+		}
+		
+		if (name == null) {
+			return original;
+		}
+		
+		String[] argss = args.toArray(new String[args.size()]);
+		String form = formatted.toString();
+		String unformat = arg;
+		
+		SuperChatProcessor processor = SuperChatProcessorManager.getProcessor(name);
+		
+		if (processor == null) {
+			return original;
+		}
+		
+		IChatComponent ee = processor.process(argss, form, unformat);
+		
+		if (ee == null) {
+			return original;
+		}
+		
+		return ee;
+	}
+	
 	public static IChatComponent msgToComponent(String msg) {
 		StringBuilder b = new StringBuilder(64);
 		boolean color = false;
@@ -785,6 +857,8 @@ public class Util {
 		
 		IChatComponent current = null;
 		ChatStyle style = new ChatStyle();
+		
+		boolean superchat = false;
 		
 		for (char c:msg.toCharArray()) {
 			if (color) {
@@ -818,7 +892,7 @@ public class Util {
 					style.setStrikethrough(false);
 					style.setUnderlined(false);
 					style.setItalic(false);
-					style.setColor(EnumChatFormatting.BLUE);
+					style.setColor(EnumChatFormatting.AQUA);
 				}
 				if (c == 'c') {
 					style.setBold(false);
@@ -882,7 +956,7 @@ public class Util {
 					style.setStrikethrough(false);
 					style.setUnderlined(false);
 					style.setItalic(false);
-					style.setColor(EnumChatFormatting.AQUA);
+					style.setColor(EnumChatFormatting.DARK_AQUA);
 				}
 				if (c == '4') {
 					style.setBold(false);
@@ -930,7 +1004,7 @@ public class Util {
 					style.setStrikethrough(false);
 					style.setUnderlined(false);
 					style.setItalic(false);
-					style.setColor(EnumChatFormatting.DARK_AQUA);
+					style.setColor(EnumChatFormatting.BLUE);
 				}
 			}
 			if (c == '§') {
@@ -942,18 +1016,32 @@ public class Util {
 				boolean http = false;
 				if (text.startsWith("http")) {
 					http = true;
+					superchat = true;
 					style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
 					style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
 				}
-				style = style.createDeepCopy();
+				
 				if (http) {
 					style.setChatClickEvent(null);
 					style.setChatHoverEvent(null);
 				}
-				main.appendSibling(current);
-				current.setChatStyle(style);
+				if (text.startsWith("~") && !superchat) {
+					IChatComponent f = superChatPreProcess(text, current);
+					if (f == current) {
+						main.appendSibling(current);
+						current.setChatStyle(style);
+					} else {
+						main.appendSibling(f);
+					}
+					superchat = true;
+				} else {
+					main.appendSibling(current);
+					current.setChatStyle(style);
+				}
+				
 				b.setLength(0);
 				
+				style = style.createDeepCopy();
 				
 				main.appendSibling(new ChatComponentText(" "));
 				continue;
@@ -964,11 +1052,22 @@ public class Util {
 			String text = b.toString();
 			current = new ChatComponentText(text);
 			if (text.startsWith("http")) {
+				superchat = true;
 				style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
 				style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
 			}
-			main.appendSibling(current);
-			current.setChatStyle(style);
+			if (text.startsWith("~") && !superchat) {
+				IChatComponent f = superChatPreProcess(text, current);
+				if (f == current) {
+					main.appendSibling(current);
+					current.setChatStyle(style);
+				} else {
+					main.appendSibling(f);
+				}
+			} else {
+				main.appendSibling(current);
+				current.setChatStyle(style);
+			}
 		}
 		return main;
 	}

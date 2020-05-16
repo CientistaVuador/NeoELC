@@ -37,7 +37,7 @@ public class CienEconomy {
 				}
 			}
 			System.out.println("Lojas Carregadas");
-		});
+		}, 40);
 		Util.schedule("Advice Player", () -> {
 			for (Shop s:getShops()) {
 				if (s.isValid()) {

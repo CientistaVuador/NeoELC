@@ -3,10 +3,8 @@ package com.cien.claims.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class Trust extends CienCommandBase {
 
@@ -18,15 +16,15 @@ public class Trust extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		com.cien.claims.Claim f = CienClaims.CLAIMS.getClaimInside(player);
 		if (f == null) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não está sobre nenhum claim.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Você não está sobre nenhum claim."));
 			return;
 		}
 		if (!f.getOwner().equals(player.getCommandSenderName())) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"O Claim não é seu.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"O Claim não é seu."));
 			return;
 		}
 		if (args.length == 0) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /trust <Player>")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Uso: /trust <Player>"));
 			return;
 		}
 		f.setFlag("permitirEntrar#"+args[0], true);
@@ -36,7 +34,7 @@ public class Trust extends CienCommandBase {
 		f.setFlag("permitirQuebrar#"+args[0], true);
 		f.setFlag("danificarEntidades#"+args[0], true);
 		f.setFlag("permitirUsarItemBloqueado#"+args[0], true);
-		player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
+		player.addChatMessage(Util.fixColors(Util.getPrefix()+"Sucesso!"));
 	}
 
 }

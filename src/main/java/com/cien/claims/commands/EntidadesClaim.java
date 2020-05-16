@@ -7,7 +7,6 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class EntidadesClaim extends CienCommandBase {
 
@@ -19,16 +18,16 @@ public class EntidadesClaim extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(player);
 		if (c == null) {
-			player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Fique dentro de um claim.")));
+			player.addChatComponentMessage(Util.fixColors(Util.getErrorPrefix()+"Fique dentro de um claim."));
 			return;
 		}
 		Entity[] entidades = c.getEntities();
 		if (entidades.length == 0) {
-			player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Não há entidades nesse claim.")));
+			player.addChatComponentMessage(Util.fixColors(Util.getErrorPrefix()+"Não há entidades nesse claim."));
 		} else {
-			player.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Entidades em "+c.getId()+":")));
+			player.addChatComponentMessage(Util.fixColors(Util.getPrefix()+"Entidades em "+c.getId()+":"));
 			for (Entity e:entidades) {
-				player.addChatComponentMessage(new ChatComponentText(Util.fixColors(" §6"+EntityList.getEntityString(e))));
+				player.addChatComponentMessage(Util.fixColors(" §6"+EntityList.getEntityString(e)));
 			}
 		}
 		

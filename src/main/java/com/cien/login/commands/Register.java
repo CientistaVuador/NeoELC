@@ -6,7 +6,6 @@ import com.cien.data.Properties;
 import com.cien.login.CienLogin;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class Register extends CienCommandBase {
 
@@ -18,7 +17,7 @@ public class Register extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (CienLogin.LOGIN.getPassword(player.getCommandSenderName()) == null) {
 			if (args.length < 2) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Uso: /register <Senha> <Senha>")));
+				sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Uso: /register <Senha> <Senha>"));
 			} else {
 				String pas1 = args[0];
 				String pas2 = args[1];
@@ -28,14 +27,14 @@ public class Register extends CienCommandBase {
 					prop.set("firstLogin", Long.toString(System.currentTimeMillis()));
 					prop.set("realName", sender.getCommandSenderName());
 					CienLogin.NEED_REGISTER.remove((EntityPlayerMP)sender);
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Sucesso!")));
+					sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Sucesso!"));
 					prop.save();
 				} else {
-					sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Senhas incorretas.")));
+					sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Senhas incorretas."));
 				}
 			}
 		} else {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Você já está registrado.")));
+			sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Você já está registrado."));
 		}
 	}
 }

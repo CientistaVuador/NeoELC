@@ -1,7 +1,6 @@
 package com.cien.commands;
 
 import java.util.List;
-
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.permissions.CienPermissions;
@@ -9,7 +8,6 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
@@ -39,7 +37,7 @@ public class ClearEntities extends CienCommandBase {
 				}
 			}
 		}
-		sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Removido "+entities+" entidades.")));
+		sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Removido "+entities+" entidades."));
 	}
 
 }

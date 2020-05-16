@@ -5,10 +5,8 @@ import com.cien.Util;
 import com.cien.chat.CienChat;
 import com.cien.discord.CienDiscord;
 import com.cien.permissions.CienPermissions;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class Global extends CienCommandBase {
 
@@ -20,12 +18,12 @@ public class Global extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "chat.global")) {
 			if (args.length <= 0) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /g <Mensagem>")));
+				player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Uso: /g <Mensagem>"));
 				return;
 			}
 			long muteTime = CienChat.CHAT.getMutedTimeLeft(player.getCommandSenderName());
 			if (muteTime > 0) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você está mutado por "+muteTime/1000+" segundos.")));
+				player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Você está mutado por "+muteTime/1000+" segundos."));
 			} else {
 				StringBuilder builder = new StringBuilder();
 				for (int i = 0; i < args.length; i++) {
@@ -39,10 +37,10 @@ public class Global extends CienCommandBase {
 					msg = msg.replace('&', '§');
 				}
 				EntityPlayerMP[] online = Util.getOnlinePlayers();
-				String message = Util.fixColors(CienChat.CHAT.buildGlobalChatMessageFor(player.getCommandSenderName(), msg));
+				String message = CienChat.CHAT.buildGlobalChatMessageFor(player.getCommandSenderName(), msg);
 				for (EntityPlayerMP p:online) {
 					if (CienPermissions.PERMISSIONS.hasPermission(p.getCommandSenderName(), "chat.global")) {
-						p.addChatMessage(new ChatComponentText(message));
+						p.addChatMessage(Util.fixColors(message));
 					}
 				}
 				System.out.println("[GLOBAL] "+sender.getCommandSenderName()+": "+builder.toString());
@@ -54,7 +52,7 @@ public class Global extends CienCommandBase {
 				CienDiscord.DISCORD.sendGlobalMessage(Util.discordColorsToBlackAndWhite(prefix)+" "+player.getCommandSenderName()+": "+Util.discordColorsToBlackAndWhite(msg));
 			}
 		} else {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão."));
 		}
 	}
 

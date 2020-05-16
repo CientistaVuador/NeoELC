@@ -3,10 +3,8 @@ package com.cien.claims.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class SetFlag extends CienCommandBase {
 
@@ -18,15 +16,15 @@ public class SetFlag extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		com.cien.claims.Claim c = CienClaims.CLAIMS.getClaimInside(player);
 		if (args.length < 1) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /setflag <Flag>")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Uso: /setflag <Flag>"));
 			return;
 		}
 		if (c == null) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Fique sobre um claim.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Fique sobre um claim."));
 			return;
 		}
 		if (!c.getOwner().equals(player.getCommandSenderName())) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Você não é dono desse terreno.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Você não é dono desse terreno."));
 			return;
 		}
 		boolean removed = false;
@@ -37,9 +35,9 @@ public class SetFlag extends CienCommandBase {
 			c.setFlag(args[0], true);
 		}
 		if (removed) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Flag Removida Com Sucesso!")));
+			player.addChatMessage(Util.fixColors(Util.getPrefix()+"Flag Removida Com Sucesso!"));
 		} else {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Flag Adicionada Com Sucesso!")));
+			player.addChatMessage(Util.fixColors(Util.getPrefix()+"Flag Adicionada Com Sucesso!"));
 		}
 	}
 

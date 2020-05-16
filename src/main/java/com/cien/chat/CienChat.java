@@ -9,11 +9,9 @@ import com.cien.data.Properties;
 import com.cien.discord.CienDiscord;
 import com.cien.login.CienLogin;
 import com.cien.permissions.CienPermissions;
-
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 
@@ -163,14 +161,13 @@ public class CienChat {
 	public void onChatMessage(ServerChatEvent event) {
 		event.setCanceled(true);
 		if (CienLogin.LOGIN.shouldBeFreezed(event.player.getCommandSenderName())) {
-			event.player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Faça login primeiro antes de falar no chat local.")));
+			Util.sendMessage(event.player, Util.getErrorPrefix()+"Faça login primeiro antes de falar no chat local.");
 			return;
 		}
 		String msg = CienChat.CHAT.buildLocalChatMessageFor(event.player.getCommandSenderName(), event.message);
 		if (CienPermissions.PERMISSIONS.hasPermission(event.player.getCommandSenderName(), "chat.colors")) {
 			msg = msg.replace('&', '§');
 		}
-		msg = Util.fixColors(msg);
 		int dim = event.player.dimension;
 		PositiveLocation loc = new PositiveLocation((int)event.player.posX, (int)event.player.posY, (int)event.player.posZ);
 		List<EntityPlayerMP> notReceived = new ArrayList<>();
@@ -179,7 +176,7 @@ public class CienChat {
 			if (player.dimension == dim) {
 				int distance = loc.distanceXZ(loc2);
 				if (distance <= 100) {
-					player.addChatMessage(new ChatComponentText(msg));
+					Util.sendMessage(player, msg);
 					continue;
 				}
 			}
@@ -187,7 +184,7 @@ public class CienChat {
 		}
 		for (EntityPlayerMP p:notReceived) {
 			if (CienPermissions.PERMISSIONS.hasPermission(p.getCommandSenderName(), "chat.staff")) {
-				p.addChatMessage(new ChatComponentText(Util.fixColors("§7[LOCAL] "+event.player.getCommandSenderName()+": "+event.message)));
+				Util.sendMessage(p, "§7[LOCAL] "+event.player.getCommandSenderName()+": "+event.message);
 			}
 		}
 		System.out.println("[LOCAL] "+event.player.getCommandSenderName()+": "+event.message);
@@ -199,10 +196,10 @@ public class CienChat {
 		CienDiscord.DISCORD.sendStaffMessage("[LOCAL] "+Util.discordColorsToBlackAndWhite(prefix)+" "+event.player.getCommandSenderName()+": "+Util.discordColorsToBlackAndWhite(event.message.replace('&', '§')));
 	}
 	
-	@SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)
+	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
 	public void onCommand(CommandEvent event) {
 		if (event.command.getCommandName().equalsIgnoreCase("tell")) {
-			event.sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Use /p <Player> <Mensagem> ao invés de /tell")));
+			Util.sendMessage(event.sender, Util.getErrorPrefix()+"Use /p <Player> <Mensagem> ao invés de /tell");
 			event.setCanceled(true);
 		}
 	}

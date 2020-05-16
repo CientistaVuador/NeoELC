@@ -18,7 +18,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
@@ -56,7 +55,7 @@ public class CienClaims {
 		Util.schedule("Dar Blocos", () -> {
 			for (EntityPlayerMP player:Util.getOnlinePlayers()) {
 				CienClaims.CLAIMS.addBlocksTo(player.getCommandSenderName(), 100);
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Você recebeu 100 blocos de claim por jogar no servidor.")));
+				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Você recebeu 100 blocos de claim por jogar no servidor."));
 			}
 		}, 5*60*20);
 		Util.run("Load Blocked Items", () -> {
@@ -763,7 +762,7 @@ public class CienClaims {
 											time = (long) timeObj;
 										}
 										if (System.currentTimeMillis() >= time) {
-											pl.addChatComponentMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"A Entidade '"+name+"' foi removida pois é considerada perigosa, dê permissão para ela com /setflag permitirEntidade#"+name)));
+											pl.addChatComponentMessage(Util.fixColors(Util.getErrorPrefix()+"A Entidade '"+name+"' foi removida pois é considerada perigosa, dê permissão para ela com /setflag permitirEntidade#"+name));
 											prop.setMemory("entityAdviceTime", System.currentTimeMillis()+10000);
 										}
 									}

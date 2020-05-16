@@ -3,11 +3,9 @@ package com.cien.chat.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.chat.CienChat;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
 
 public class Responder extends CienCommandBase {
 
@@ -19,10 +17,10 @@ public class Responder extends CienCommandBase {
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		String last = CienChat.CHAT.getLastSenderFor(player.getCommandSenderName());
 		if (last == null) {
-			player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Ninguém te mandou uma mensagem privada recentemente.")));
+			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Ninguém te mandou uma mensagem privada recentemente."));
 		} else {
 			if (args.length == 0) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /r <Mensagem>")));
+				player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Uso: /r <Mensagem>"));
 				return;
 			}
 			StringBuilder b = new StringBuilder(64);

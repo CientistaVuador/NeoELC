@@ -4,10 +4,8 @@ import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.permissions.CienPermissions;
 import com.cien.teleport.CienTeleport;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
 
 public class DelWarp extends CienCommandBase {
 
@@ -18,19 +16,19 @@ public class DelWarp extends CienCommandBase {
 	@Override
 	public void onCommand(ICommandSender sender, EntityPlayerMP player, String[] args) {
 		if (!CienPermissions.PERMISSIONS.hasPermission(sender.getCommandSenderName(), "admin.delwarp")) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão.")));
+			sender.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Sem Permissão."));
 			return;
 		}
 		if (args.length < 1) {
-			sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Uso: /delwarp <Nome>")));
+			sender.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Uso: /delwarp <Nome>"));
 		} else {
 			String nome = args[0];
 			com.cien.teleport.Warp w = CienTeleport.TELEPORT.getWarp(nome);
 			if (w == null) {
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getErrorPrefix()+"Essa warp não existe.")));
+				sender.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Essa warp não existe."));
 			} else {
 				CienTeleport.TELEPORT.removeWarp(w);
-				sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Warp removida com Sucesso!")));
+				sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Warp removida com Sucesso!"));
 			}
 		}
 	}

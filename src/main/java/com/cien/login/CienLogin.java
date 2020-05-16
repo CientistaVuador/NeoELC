@@ -2,10 +2,8 @@ package com.cien.login;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.cien.Util;
 import com.cien.data.Properties;
-
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -14,7 +12,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -32,10 +29,10 @@ public final class CienLogin {
 		System.out.println("CienLogin Iniciado!");
 		Util.schedule("Aviso Register/Login", () -> {
 			for (EntityPlayerMP player:NEED_LOGIN.toArray(new EntityPlayerMP[NEED_LOGIN.size()])) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Faça login com /login <Senha>")));
+				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça login com /login <Senha>"));
 			}
 			for (EntityPlayerMP player:NEED_REGISTER.toArray(new EntityPlayerMP[NEED_REGISTER.size()])) {
-				player.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"Faça seu registro com /register <Senha> <Senha>")));
+				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça seu registro com /register <Senha> <Senha>"));
 			}
 		}, 100);
 	}
@@ -125,7 +122,7 @@ public final class CienLogin {
 		String lowerCase = event.command.getCommandName().toLowerCase();
 		if (shouldBeFreezed(event.sender.getCommandSenderName())) {
 			if (!lowerCase.equals("register") && !lowerCase.equals("login")) {
-				event.sender.addChatMessage(new ChatComponentText(Util.fixColors(Util.getPrefix()+"§6Faça login/registro primeiro.")));
+				event.sender.addChatMessage(Util.fixColors(Util.getPrefix()+"§6Faça login/registro primeiro."));
 				event.setCanceled(true);
 			}
 		}
