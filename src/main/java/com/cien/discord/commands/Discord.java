@@ -31,7 +31,7 @@ public class Discord extends CienCommandBase {
 					Util.sendMessage(player, Util.getPrefix()+"Reiniciando...");
 					try {
 						CienDiscord.DISCORD.shutdown();
-						CienDiscord.DISCORD.start();
+						CienDiscord.DISCORD.startDiscord();
 					} catch (Exception ex) {
 						Util.sendMessage(player, Util.getErrorPrefix()+"Erro: "+ex.getMessage());
 						return;

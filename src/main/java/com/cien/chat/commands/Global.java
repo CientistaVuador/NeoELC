@@ -40,7 +40,11 @@ public class Global extends CienCommandBase {
 				String message = CienChat.CHAT.buildGlobalChatMessageFor(player.getCommandSenderName(), msg);
 				for (EntityPlayerMP p:online) {
 					if (CienPermissions.PERMISSIONS.hasPermission(p.getCommandSenderName(), "chat.global")) {
-						p.addChatMessage(Util.fixColors(message));
+						if (CienChat.CHAT.isIgnoringPlayer(p.getCommandSenderName(), sender.getCommandSenderName())) {
+							Util.sendMessage(p, Ignorar.IgnoredMessageSuperChatCommand.buildCommandForMessage(message));
+						} else {
+							Util.sendMessage(p, message);
+						}
 					}
 				}
 				System.out.println("[GLOBAL] "+sender.getCommandSenderName()+": "+builder.toString());

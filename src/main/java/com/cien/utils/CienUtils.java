@@ -2,10 +2,17 @@ package com.cien.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.claims.Claim;
 import com.cien.data.Properties;
+import com.cien.utils.commands.Claimlag;
+import com.cien.utils.commands.Invsee;
+import com.cien.utils.commands.Lagtop;
+import com.cien.utils.commands.Tiletick;
+import com.cien.utils.commands.Vanish;
+
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,7 +20,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-public class CienUtils {
+public class CienUtils extends Module {
 
 	
 	public static final CienUtils UTILS = new CienUtils();
@@ -23,7 +30,16 @@ public class CienUtils {
 	private long nextClaimCacheReset = 0;
 	
 	private CienUtils() {
-		
+		super("CienUtils");
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Claimlag());
+		event.registerServerCommand(new Invsee());
+		event.registerServerCommand(new Lagtop());
+		event.registerServerCommand(new Tiletick());
+		event.registerServerCommand(new Vanish());
 	}
 	
 	public long getTileEntityTickTime(TileEntity ent) {
@@ -110,4 +126,5 @@ public class CienUtils {
 			}
 		}
 	}
+	
 }

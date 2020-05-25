@@ -62,6 +62,18 @@ public class Claim extends CienCommandBase {
 			player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Blocos insuficientes. (Necessário "+claim.getSize()+")"));
 			return;
 		}
+		com.cien.claims.Claim[] claims = CienClaims.CLAIMS.getClaims();
+		for (com.cien.claims.Claim w:claims) {
+			if (w.getOwner().equals(player.getCommandSenderName())) {
+				continue;
+			}
+			if (w.getShield().isInside(player)) {
+				if (!w.getFlag("permitirClaimsProximos")) {
+					Util.sendMessage(player, Util.getErrorPrefix()+"Claim de "+w.getOwner()+" não possui a flag permitirClaimsProximos.");
+					return;
+				}
+			}
+		}
 		CienClaims.CLAIMS.addClaim(claim);
 		CienClaims.CLAIMS.removeBlocksOf(player.getCommandSenderName(), claim.getSize());
 		claim.makeFencesAndSave();

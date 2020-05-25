@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.data.Node;
 import com.cien.data.Properties;
 import com.cien.discord.CienDiscord;
 
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class CienVotifier implements VoteListener {
+public class CienVotifier extends Module implements VoteListener {
 
 	public static final CienVotifier VOTIFIER = new CienVotifier();
 	
@@ -23,10 +24,16 @@ public class CienVotifier implements VoteListener {
 	private Votifier votifier = null;
 	
 	private CienVotifier() {
+		super("CienVotifier");
+	}
+	
+	@Override
+	public void preStart() {
 		VoteListenerManager.addListener(this);
-		Util.schedule("Read Votes on Server Thread", () -> {
-			VoteListenerManager.callListeners();
-		}, 20);
+	}
+	
+	@Override
+	public void start() {
 		try {
 			System.out.println("Carregando keys do votifier");
 			KeyPair pair = KeyManager.readKeyPair();
@@ -43,12 +50,26 @@ public class CienVotifier implements VoteListener {
 			System.out.println("Não foi possível iniciar o votifier");
 			ex.printStackTrace();
 		}
-		Util.run("Load Items", () -> {
-			Node items = prop.getNode("items");
-			for (Node n:items.getNodes()) {
-				this.items.add(Util.getItemStackFromNode(n));
+	}
+	
+	@Override
+	public void postStart() {
+		Node items = prop.getNode("items");
+		for (Node n:items.getNodes()) {
+			this.items.add(Util.getItemStackFromNode(n));
+		}
+		run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				VoteListenerManager.callListeners();
 			}
-		}, 3);
+		}, 20, true);
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new com.cien.votifier.commands.Caixa());
+		event.registerServerCommand(new com.cien.votifier.commands.Vote());
 	}
 	
 	public void shutdown() {

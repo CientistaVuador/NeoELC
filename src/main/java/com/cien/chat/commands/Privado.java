@@ -40,7 +40,11 @@ public class Privado extends CienCommandBase {
 				String messageReceiver = CienChat.CHAT.getPrivateChatMessageForReceiver(player.getCommandSenderName(), msg);
 				String messageSender = CienChat.CHAT.getPrivateChatMessageForSender(online.getCommandSenderName(), msg);
 				player.addChatMessage(Util.fixColors(messageSender));
-				online.addChatMessage(Util.fixColors(messageReceiver));
+				if (CienChat.CHAT.isIgnoringPlayer(online.getCommandSenderName(), player.getCommandSenderName())) {
+					Util.sendMessage(online, Ignorar.IgnoredMessageSuperChatCommand.buildCommandForMessage(messageReceiver));
+				} else {
+					Util.sendMessage(online, messageReceiver);
+				}
 				for (EntityPlayerMP p:Util.getOnlinePlayers()) {
 					if (p.getCommandSenderName().equals(sender.getCommandSenderName())) {
 						continue;

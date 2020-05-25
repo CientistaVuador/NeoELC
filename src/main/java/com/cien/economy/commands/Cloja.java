@@ -3,6 +3,7 @@ package com.cien.economy.commands;
 import com.cien.CienCommandBase;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.economy.CienEconomy;
 import com.cien.economy.LongDecimal;
 import com.cien.permissions.CienPermissions;
 import net.minecraft.command.ICommandSender;
@@ -62,7 +63,7 @@ public class Cloja extends CienCommandBase {
 			Object[] buildShop = {buy, preco, nbt, hand.copy(), unlimited};
 			prop.setMemory("SHOP_TO_BUILD", buildShop);
 			Util.sendMessage(player, Util.getPrefix()+"Clique no bloco em que você quer colocar a loja.");
-			Util.run("Remove shop build from memory of "+player.getCommandSenderName(), () -> {
+			CienEconomy.ECONOMY.run(() -> {
 				if (prop.getMemory("SHOP_TO_BUILD") == null) {
 					return;
 				}

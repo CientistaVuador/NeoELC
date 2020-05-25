@@ -2,7 +2,7 @@ package com.cien.vip;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
 import com.cien.data.Properties;
@@ -12,7 +12,7 @@ import com.cien.economy.CienEconomy;
 import com.cien.economy.LongDecimal;
 import com.cien.permissions.CienPermissions;
 import com.cien.vip.discordcommands.GetKey;
-
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.dv8tion.jda.api.JDA;
@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.minecraftforge.common.MinecraftForge;
 
-public class CienVIP {
+public class CienVIP extends Module {
 	public static final CienVIP VIP = new CienVIP();
 	private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 	
@@ -48,6 +48,11 @@ public class CienVIP {
 	
 	
 	private CienVIP() {
+		super("CienVIP");
+	}
+	
+	@Override
+	public void start() {
 		String[] k = prop.getArray("keys");
 		for (String s:k) {
 			keys.add(Key.fromString(s));
@@ -62,25 +67,34 @@ public class CienVIP {
 		if (vipRole != null) {
 			this.vipRoleDiscord = Long.parseLong(vipRole);
 		}
-		
-		Util.schedule("Vip Remover", () -> {
-			for (String s:Properties.getAllProperties()) {
-				if (s.length() > 0) {
-					if (s.charAt(0) != '(') {
-						if (CienVIP.VIP.isVip(s)) {
-							if (!CienVIP.VIP.isVipInfinity(s)) {
-								long time = CienVIP.VIP.getTimeLeft(s);
-								if (time <= 0) {
-									CienPermissions.PERMISSIONS.setGroup(s, CienPermissions.PERMISSIONS.getDefaultGroup());
-									MinecraftForge.EVENT_BUS.post(new VipDeactivationEvent(s));
+		run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				for (String s:Properties.getAllProperties()) {
+					if (s.length() > 0) {
+						if (s.charAt(0) != '(') {
+							if (CienVIP.VIP.isVip(s)) {
+								if (!CienVIP.VIP.isVipInfinity(s)) {
+									long time = CienVIP.VIP.getTimeLeft(s);
+									if (time <= 0) {
+										CienPermissions.PERMISSIONS.setGroup(s, CienPermissions.PERMISSIONS.getDefaultGroup());
+										MinecraftForge.EVENT_BUS.post(new VipDeactivationEvent(s));
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-		}, 60*20);
+		}, 60*20, true);
 		DiscordCommandManager.register(new GetKey());
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new com.cien.vip.commands.Ativar());
+		event.registerServerCommand(new com.cien.vip.commands.GerarKey());
+		event.registerServerCommand(new com.cien.vip.commands.Vip());
 	}
 	
 	public String getVipGroup() {

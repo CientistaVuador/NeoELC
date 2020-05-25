@@ -2,12 +2,22 @@ package com.cien.economy;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.cien.Module;
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.claims.Claim;
 import com.cien.data.Properties;
+import com.cien.economy.commands.Cloja;
+import com.cien.economy.commands.Comprar;
+import com.cien.economy.commands.Eco;
+import com.cien.economy.commands.Enviar;
+import com.cien.economy.commands.Loja;
+import com.cien.economy.commands.Money;
+import com.cien.economy.commands.SetShop;
+import com.cien.economy.commands.Top;
+import com.cien.economy.commands.Vender;
 import com.cien.permissions.CienPermissions;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -16,7 +26,7 @@ import net.minecraft.world.WorldSettings;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
-public class CienEconomy {
+public class CienEconomy extends Module {
 	
 	public static final CienEconomy ECONOMY = new CienEconomy();
 	
@@ -24,45 +34,39 @@ public class CienEconomy {
 	private final List<Shop> shops = new ArrayList<>();
 	
 	private CienEconomy() {
-		Util.run("Load Shops", () -> {
-			System.out.println("Carregando Lojas...");
-			for (String s:Properties.getAllProperties()) {
-				try {
-					if (!s.startsWith("(Shop)")) {
-						continue;
-					}
-					shops.add(new Shop(Properties.getProperties(s)));
-				} catch (Exception ex) {
-					System.out.println("Erro ao carregar loja "+s+": "+ex.getMessage());
-				}
-			}
-			System.out.println("Lojas Carregadas");
-		}, 40);
-		Util.schedule("Advice Player", () -> {
-			for (Shop s:getShops()) {
-				if (s.isValid()) {
-					for (ChestShop f:s.getChestShops()) {
-						if (f.isValid()) {
-							PositiveLocation shopPos = new PositiveLocation(f.getX(), f.getY(), f.getZ());
-							player_for:
-							for (EntityPlayerMP player:Util.getOnlinePlayers()) {
-								if (!s.getWorld().equals(player.worldObj.provider.getDimensionName())) {
-									continue player_for;
-								}
-								PositiveLocation playerPos = new PositiveLocation((int)player.posX, (int)player.posY, (int)player.posZ);
-								float dist = playerPos.distance(shopPos);
-								if (dist < 10) {
-									Properties prop = Properties.getProperties(player.getCommandSenderName());
-									Object nextUpdate = prop.getMemory("..NextSHOPUpdate");
-									if (nextUpdate == null || System.currentTimeMillis() > (long)nextUpdate) {
-										prop.setMemory("..NextSHOPUpdate", System.currentTimeMillis() + 30*60*1000);
-										Util.sendMessage(player, Util.getPrefix()+"Como usar uma loja:");
-										Util.sendMessage(player, " §6Clique com o direito na placa da loja e");
-										Util.sendMessage(player, " §apara comprar digite /c <quantidade>");
-										Util.sendMessage(player, " §ce para vender digite /v <quantidade>");
-										Util.sendMessage(player, Util.getPrefix()+"Lembre se: ");
-										Util.sendMessage(player, " §6Placas com o preço em §cvermelho §6são para comprar e");
-										Util.sendMessage(player, " §6placas com o preço em §averde §6são para vender.");
+		super("CienEconomy");
+	}
+	
+	@Override
+	public void start() {
+		run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				for (Shop s:getShops()) {
+					if (s.isValid()) {
+						for (ChestShop f:s.getChestShops()) {
+							if (f.isValid()) {
+								PositiveLocation shopPos = new PositiveLocation(f.getX(), f.getY(), f.getZ());
+								player_for:
+								for (EntityPlayerMP player:Util.getOnlinePlayers()) {
+									if (!s.getWorld().equals(player.worldObj.provider.getDimensionName())) {
+										continue player_for;
+									}
+									PositiveLocation playerPos = new PositiveLocation((int)player.posX, (int)player.posY, (int)player.posZ);
+									float dist = playerPos.distance(shopPos);
+									if (dist < 10) {
+										Properties prop = Properties.getProperties(player.getCommandSenderName());
+										Object nextUpdate = prop.getMemory("..NextSHOPUpdate");
+										if (nextUpdate == null || System.currentTimeMillis() > (long)nextUpdate) {
+											prop.setMemory("..NextSHOPUpdate", System.currentTimeMillis() + 30*60*1000);
+											Util.sendMessage(player, Util.getPrefix()+"Como usar uma loja:");
+											Util.sendMessage(player, " §6Clique com o direito na placa da loja e");
+											Util.sendMessage(player, " §apara comprar digite /c <quantidade>");
+											Util.sendMessage(player, " §ce para vender digite /v <quantidade>");
+											Util.sendMessage(player, Util.getPrefix()+"Lembre se: ");
+											Util.sendMessage(player, " §6Placas com o preço em §cvermelho §6são para comprar e");
+											Util.sendMessage(player, " §6placas com o preço em §averde §6são para vender.");
+										}
 									}
 								}
 							}
@@ -70,7 +74,36 @@ public class CienEconomy {
 					}
 				}
 			}
-		}, 5);
+		}, 5, true);
+	}
+	
+	@Override
+	public void postStart() {
+		System.out.println("Carregando Lojas...");
+		for (String s:Properties.getAllProperties()) {
+			try {
+				if (!s.startsWith("(Shop)")) {
+					continue;
+				}
+				shops.add(new Shop(Properties.getProperties(s)));
+			} catch (Exception ex) {
+				System.out.println("Erro ao carregar loja "+s+": "+ex.getMessage());
+			}
+		}
+		System.out.println("Lojas Carregadas");
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Money());
+    	event.registerServerCommand(new Enviar());
+    	event.registerServerCommand(new Eco());
+    	event.registerServerCommand(new Top());
+    	event.registerServerCommand(new Cloja());
+    	event.registerServerCommand(new SetShop());
+    	event.registerServerCommand(new Loja());
+    	event.registerServerCommand(new Comprar());
+    	event.registerServerCommand(new Vender());
 	}
 	
 	public void addShop(Shop s) {
@@ -197,12 +230,15 @@ public class CienEconomy {
 							Util.sendMessage(player, Util.getPrefix()+"ou /v 0 para cancelar.");
 						}
 						prop.setMemory("SHOP_ACTION", f);
-						Util.run("Cancel Shop Action for "+player.getCommandSenderName(), () -> {
-							if (prop.getMemory("SHOP_ACTION") != null) {
-								EntityPlayerMP p = Util.getOnlinePlayer(prop.getName());
-								prop.setMemory("SHOP_ACTION", null);
-								if (p != null) {
-									Util.sendMessage(p, Util.getErrorPrefix()+"Compra/venda cancelada.");
+						run(new ModuleRunnable() {
+							@Override
+							public void run(Module mdl, ModuleRunnable r) {
+								if (prop.getMemory("SHOP_ACTION") != null) {
+									EntityPlayerMP p = Util.getOnlinePlayer(prop.getName());
+									prop.setMemory("SHOP_ACTION", null);
+									if (p != null) {
+										Util.sendMessage(p, Util.getErrorPrefix()+"Compra/venda cancelada.");
+									}
 								}
 							}
 						}, 20*10);

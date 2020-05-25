@@ -3,10 +3,13 @@ package com.cien.banitem;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cien.Module;
 import com.cien.Util;
+import com.cien.banitem.commands.BanItem;
 import com.cien.data.Properties;
 import com.cien.permissions.CienPermissions;
 
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,7 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-public class CienBanItem {
+public class CienBanItem extends Module {
 	public static final CienBanItem BANITEM = new CienBanItem();
 	
 	private final Properties prop = Properties.getProperties("(Module)CienBanItem");
@@ -24,7 +27,12 @@ public class CienBanItem {
 	private final List<String> itemInteraction = new ArrayList<>();
 	
 	private CienBanItem() {
-		
+		super("CienBanItem");
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new BanItem());
 	}
 	
 	public Properties getProperties() {

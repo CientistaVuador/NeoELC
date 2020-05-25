@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import com.cien.Module;
 import com.cien.data.Properties;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 
-public class CienTeleport {
+public class CienTeleport extends Module {
 	
 	public static final CienTeleport TELEPORT = new CienTeleport();
 	public static final int DEFAULT_MAX_HOMES = 3;
@@ -31,8 +33,30 @@ public class CienTeleport {
 	private final List<Warp> warps = new ArrayList<>();
 	
 	private CienTeleport() {
-		System.out.println("CienTeleport Ativado!");
+		super("CienTeleport");
+	}
+	
+	@Override
+	public void start() {
 		load();
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new com.cien.teleport.commands.DelHome());
+    	event.registerServerCommand(new com.cien.teleport.commands.DelWarp());
+    	event.registerServerCommand(new com.cien.teleport.commands.GotoHome());
+    	event.registerServerCommand(new com.cien.teleport.commands.Home());
+    	event.registerServerCommand(new com.cien.teleport.commands.SetHome());
+    	event.registerServerCommand(new com.cien.teleport.commands.SetMaxHomes());
+    	event.registerServerCommand(new com.cien.teleport.commands.SetWarp());
+    	event.registerServerCommand(new com.cien.teleport.commands.Warp());
+    	event.registerServerCommand(new com.cien.teleport.commands.Tpa());
+    	event.registerServerCommand(new com.cien.teleport.commands.Tprc());
+    	event.registerServerCommand(new com.cien.teleport.commands.Tpac());
+    	event.registerServerCommand(new com.cien.teleport.commands.Tphere());
+    	event.registerServerCommand(new com.cien.teleport.commands.Tpp());
+    	event.registerServerCommand(new com.cien.teleport.commands.Rtp());
 	}
 	
 	public void load() {

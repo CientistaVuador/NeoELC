@@ -18,6 +18,7 @@ import com.cien.data.Node;
 import com.cien.data.Properties;
 import com.cien.superchat.SuperChatProcessor;
 import com.cien.superchat.SuperChatProcessorManager;
+import com.cien.utils.CienUtils;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
@@ -47,8 +48,6 @@ import net.minecraftforge.common.DimensionManager;
 
 public class Util {
 	
-	protected static List<Task> tasks = new ArrayList<>();
-	protected static List<ScheduledTask> scheduled = new ArrayList<>();
 	protected static int TPS = 0;
 	protected static Map<String, Item> items = new HashMap<>();
 	protected static Map<String, String> ptBr = new HashMap<>();
@@ -196,6 +195,61 @@ public class Util {
 			return 1;
 		}
 		return 0;
+	}
+	
+	public static EntityPlayerMP[] getOnlinePlayersInexact(String p) {
+		List<EntityPlayerMP> found = new ArrayList<>();
+		
+		p = p.toLowerCase();
+		EntityPlayerMP[] online = getOnlinePlayers();
+		String[] cache = new String[online.length];
+		int cacheSize = 0;
+		
+		int cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			String name = player.getCommandSenderName().toLowerCase();
+			cache[cacheSize] = name;
+			cacheSize++;
+			if (name.equals(p)) {
+				if (!found.contains(player)) {
+					found.add(player);
+				}
+			}
+		}
+		
+		cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			if (cache[cacheIndex].startsWith(p)) {
+				if (!found.contains(player)) {
+					found.add(player);
+				}
+			}
+			cacheIndex++;
+		}
+		
+		cacheIndex = 0;
+		for (EntityPlayerMP player:online) {
+			if (cache[cacheIndex].contains(p)) {
+				if (!found.contains(player)) {
+					found.add(player);
+				}
+			}
+			cacheIndex++;
+		}
+		int lenght = p.length();
+		found.sort((EntityPlayerMP o1, EntityPlayerMP o2) -> {
+			float a = (float)lenght/o1.getCommandSenderName().length();
+			float b = (float)lenght/o2.getCommandSenderName().length();
+			if (a < b) {
+				return 1;
+			}
+			if (a > b) {
+				return -1;
+			}
+			return 0;
+		});
+		
+		return found.toArray(new EntityPlayerMP[found.size()]);
 	}
 	
 	public static String getPlayerInexact(String p) {
@@ -583,24 +637,6 @@ public class Util {
 		return t;
 	}
 	
-	public static Task run(String name, Runnable r, int ticks) {
-		Task t = new Task(name, r, ticks);
-		tasks.add(t);
-		return t;
-	}
-	
-	public static Task run(String name, Runnable r) {
-		Task t = new Task(name, r, 0);
-		tasks.add(t);
-		return t;
-	}
-	
-	public static ScheduledTask schedule(String name, Runnable r, int ticks) {
-		ScheduledTask t = new ScheduledTask(name, r, ticks);
-		scheduled.add(t);
-		return t;
-	}
-	
 	public static EntityPlayerMP[] getOnlinePlayers() {
 		ServerConfigurationManager manager = getServerManager();
 		List<?> l = manager.playerEntityList;
@@ -674,7 +710,7 @@ public class Util {
 		player.setPositionAndUpdate(x, y, z);
 		player.addExperienceLevel(0);
 		if (oldDim == 1 && oldDim != w.provider.dimensionId) {
-			Util.run("Remove player from end: "+player.getDisplayName(), () -> {
+			CienUtils.UTILS.run(() -> {
 				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, w.provider.dimensionId, new NoTeleporter(Util.getWorld(w.provider.getDimensionName())));
 	            player.setPositionAndUpdate(x, y, z);
 	            player.getServerForPlayer().updateEntityWithOptionalForce(player, false);
@@ -795,15 +831,14 @@ public class Util {
 		for (char c:arg.toCharArray()) {
 			if (escape) {
 				b.append(c);
+				if (name != null) {
+					formatted.append(c);
+				}
 				escape = false;
 				continue;
 			}
 			if (c == '\\') {
 				escape = true;
-				b.append(c);
-				if (name != null) {
-					formatted.append(c);
-				}
 				continue;
 			}
 			if (c == ':' && name == null) {

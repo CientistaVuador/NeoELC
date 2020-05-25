@@ -1,13 +1,16 @@
 package com.cien.levels;
 
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.data.Properties;
 import com.cien.economy.CienEconomy;
 import com.cien.economy.LongDecimal;
+import com.cien.levels.commands.Level;
 import com.cien.superchat.SuperChatProcessor;
 import com.cien.superchat.SuperChatProcessorManager;
 import com.cien.teleport.CienTeleport;
 
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.Entity;
@@ -21,7 +24,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
-public class CienLevels {
+public class CienLevels extends Module {
 
 	public static final class SuperChatShowLevel extends SuperChatProcessor {
 
@@ -45,7 +48,17 @@ public class CienLevels {
 	public static final CienLevels LEVELS = new CienLevels();
 	
 	private CienLevels() {
+		super("CienLevels");
+	}
+	
+	@Override
+	public void start() {
 		SuperChatProcessorManager.addProcessor(new SuperChatShowLevel());
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Level());
 	}
 	
 	public int getLevelOf(String player) {

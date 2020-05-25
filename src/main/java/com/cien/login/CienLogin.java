@@ -2,8 +2,14 @@ package com.cien.login;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.login.commands.Login;
+import com.cien.login.commands.Register;
+import com.cien.login.commands.SetPassword;
+
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -18,23 +24,37 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
-public final class CienLogin {
+public final class CienLogin extends Module {
 	
 	public static final CienLogin LOGIN = new CienLogin();
 	
 	public static final List<EntityPlayerMP> NEED_LOGIN = new ArrayList<>();
 	public static final List<EntityPlayerMP> NEED_REGISTER = new ArrayList<>();
 	
-	public CienLogin() {
-		System.out.println("CienLogin Iniciado!");
-		Util.schedule("Aviso Register/Login", () -> {
-			for (EntityPlayerMP player:NEED_LOGIN.toArray(new EntityPlayerMP[NEED_LOGIN.size()])) {
-				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça login com /login <Senha>"));
+	private CienLogin() {
+		super("CienLogin");
+	}
+	
+	@Override
+	public void start() {
+		run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				for (EntityPlayerMP player:NEED_LOGIN.toArray(new EntityPlayerMP[NEED_LOGIN.size()])) {
+					player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça login com /login <Senha>"));
+				}
+				for (EntityPlayerMP player:NEED_REGISTER.toArray(new EntityPlayerMP[NEED_REGISTER.size()])) {
+					player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça seu registro com /register <Senha> <Senha>"));
+				}
 			}
-			for (EntityPlayerMP player:NEED_REGISTER.toArray(new EntityPlayerMP[NEED_REGISTER.size()])) {
-				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Faça seu registro com /register <Senha> <Senha>"));
-			}
-		}, 100);
+		}, 100, true);
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Login());
+    	event.registerServerCommand(new Register());
+    	event.registerServerCommand(new SetPassword());
 	}
 	
 	public String getPassword(String player) {
@@ -52,20 +72,19 @@ public final class CienLogin {
 		if (p == null) {
 			return false;
 		}
-		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
-			return true;
-		}
-		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX+1, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
-			return true;
-		}
-		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX-1, (int)p.posY, (int)p.posZ)) == Block.getIdFromBlock(Blocks.portal)) {
-			return true;
-		}
-		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ+1)) == Block.getIdFromBlock(Blocks.portal)) {
-			return true;
-		}
-		if (Block.getIdFromBlock(p.worldObj.getBlock((int)p.posX, (int)p.posY, (int)p.posZ-1)) == Block.getIdFromBlock(Blocks.portal)) {
-			return true;
+		int targetId = Block.getIdFromBlock(Blocks.portal);
+		for (int x = (int)(p.posX-5); x <= (int)(p.posX+5); x++) {
+			for (int z = (int)(p.posZ-5); z <= (int)(p.posZ+5); z++) {
+				for (int y = (int)(p.posY-5); y <= (int)(p.posY+5); y++) {
+					if (y >= 0) {
+						Block c = p.worldObj.getBlock(x, y, z);
+						int id = Block.getIdFromBlock(c);
+						if (id == targetId) {
+							return true;
+						}
+					}
+				}
+			}
 		}
 		return false;
 	}

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cien.discord.discordcommands.Ajuda;
+import com.cien.discord.discordcommands.Autokick;
+import com.cien.discord.discordcommands.Players;
 import com.cien.discord.discordcommands.Register;
 import com.cien.discord.discordcommands.Unregister;
 
@@ -15,6 +17,8 @@ public class DiscordCommandManager {
 		register(new Ajuda());
 		register(new Register());
 		register(new Unregister());
+		register(new Players());
+		register(new Autokick());
 	}
 	
 	public static DiscordCommand[] getCommands() {

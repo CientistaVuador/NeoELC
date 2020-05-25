@@ -45,6 +45,9 @@ public class TpClaim extends CienCommandBase {
 			}
 			int y = world.getHeightValue(x, z);
 			Util.teleportPlayer(player, world, x, y, z, player.rotationPitch, player.rotationYaw);
+			CienClaims.CLAIMS.run(() -> {
+				Util.teleportPlayer(player, world, x, Util.getHighestYAt(x, z, world), z, player.rotationPitch, player.rotationYaw);
+			}, 10);
 			player.addChatMessage(Util.fixColors(Util.getPrefix()+"Teleportado Com Sucesso!"));
 		}
 	}

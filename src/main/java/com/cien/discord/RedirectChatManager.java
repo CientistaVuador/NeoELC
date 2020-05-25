@@ -3,7 +3,7 @@ package com.cien.discord;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.cien.Util;
+import com.cien.utils.CienUtils;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -29,7 +29,7 @@ public class RedirectChatManager {
 	private int timeLeft = 0;
 	
 	private RedirectChatManager() {
-		Util.schedule("Redirect Chat Manager Update", () -> {
+		CienUtils.UTILS.run(() -> {
 			theManager.update();
 		}, 20);
 	}

@@ -14,6 +14,9 @@ import com.cien.data.Properties;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldServer;
 
 public final class Claim {
@@ -23,6 +26,116 @@ public final class Claim {
 	public static final int TRUST = 1;
 	public static final int CUSTOM = 2;
 	
+	public static class ClaimBlock {
+		
+		private Block block;
+		private int meta;
+		private NBTTagCompound nbt;
+		
+		private ClaimBlock(Block block, int meta, NBTTagCompound tag) {
+			this.block = block;
+			this.meta = meta;
+			this.nbt = (NBTTagCompound) tag.copy();
+		}
+		
+		public Block getBlock() {
+			return block;
+		}
+		
+		public int getMeta() {
+			return meta;
+		}
+		
+		public NBTTagCompound getNBT() {
+			return (NBTTagCompound) nbt.copy();
+		}
+		
+		//Thaumcraft Nodes are special
+		public void setThaumcraftNodeID(int x, int y, int z, int dimension) {
+			if (!isThaumcraftNode()) {
+				return;
+			}
+			StringBuilder b = new StringBuilder(64);
+			b.append(dimension);
+			b.append(':');
+			b.append(x);
+			b.append(':');
+			b.append(y);
+			b.append(':');
+			b.append(z);
+			nbt.setString("nodeId", b.toString());
+		}
+		
+		//Thaumcraft Nodes are special
+		public int[] getThaumcraftNodeID() {
+			if (!isThaumcraftNode()) {
+				return null;
+			}
+			String s = nbt.getString("nodeId");
+			if (s.length() == 0) {
+				return null;
+			}
+			StringBuilder parse = new StringBuilder(64);
+			int[] result = new int[4];
+			int arr = 0;
+			for (char c:s.toCharArray()) {
+				if (arr == result.length) {
+					break;
+				}
+				if (c == ':') {
+					try {
+						result[arr] = Integer.parseInt(parse.toString());
+					} catch (NumberFormatException ex) {
+						result[arr] = 0;
+					}
+					parse.setLength(0);
+					arr++;
+					continue;
+				}
+				parse.append(c);
+			}
+			if (parse.length() != 0 && arr < result.length) {
+				try {
+					result[arr] = Integer.parseInt(parse.toString());
+				} catch (NumberFormatException ex) {
+					result[arr] = 0;
+				}
+			}
+			return result;
+		}
+		
+		//Thaumcraft Nodes are special
+		public boolean isThaumcraftNode() {
+			if (nbt == null) {
+				return false;
+			}
+			if (!nbt.hasKey("AspectsBase")) {
+				return false;
+			}
+			if (nbt.getString("nodeId").length() == 0) {
+				return false;
+			}
+			return true;
+		}
+		
+		public void setNBTPosition(int x, int y, int z) {
+			if (nbt != null) {
+				nbt.setInteger("x", x);
+				nbt.setInteger("y", y);
+				nbt.setInteger("z", z);
+			}
+		}
+		
+		public int[] getNBTPosition() {
+			int[] a = new int[3];
+			if (nbt != null) {
+				a[0] = nbt.getInteger("x");
+				a[1] = nbt.getInteger("y");
+				a[2] = nbt.getInteger("z");
+			}
+			return a;
+		}
+	}
 	
 	private final int biggerX;
 	private final int smallerX;
@@ -426,62 +539,167 @@ public final class Claim {
 	
 	public void makeFencesAndSave() {
 		WorldServer w = Util.getWorld(getWorld());
+		if (w == null) {
+			return;
+		}
 		for (int x = smallerX; x < biggerX; x++) {
             int highY = Util.getHighestYAt(x, smallerZ, w) + 1;
-            w.setBlock(x, highY, smallerZ, Block.getBlockById(85));
+            w.setBlock(x, highY, smallerZ, Blocks.fence);
         }
-        for (int x = smallerX; x < biggerX; x++) {
-        	int highY = Util.getHighestYAt(x, biggerZ, w) + 1;
-            w.setBlock(x, highY, biggerZ, Block.getBlockById(85));
-        }
-        for (int z = smallerZ; z < biggerZ; z++) {
-        	int highY = Util.getHighestYAt(smallerX, z, w) + 1;
-            w.setBlock(smallerX, highY, z, Block.getBlockById(85));
-        }
-        for (int z = smallerZ; z < biggerZ; z++) {
+		for (int z = smallerZ; z < biggerZ; z++) {
         	int highY = Util.getHighestYAt(biggerX, z, w) + 1;
-            w.setBlock(biggerX, highY, z, Block.getBlockById(85));
+            w.setBlock(biggerX, highY, z, Blocks.fence);
         }
-        int highY = Util.getHighestYAt(biggerX, biggerZ, w) + 1;
-        w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(85));
-        highY = Util.getHighestYAt(smallerX, smallerZ, w) + 1;
-        w.setBlock(smallerX, highY, smallerZ, Block.getBlockById(85));
+        for (int x = biggerX; x > smallerX; x--) {
+        	int highY = Util.getHighestYAt(x, biggerZ, w) + 1;
+            w.setBlock(x, highY, biggerZ, Blocks.fence);
+        }
+        for (int z = biggerZ; z > smallerZ; z--) {
+        	int highY = Util.getHighestYAt(smallerX, z, w) + 1;
+            w.setBlock(smallerX, highY, z, Blocks.fence);
+        }
+        
+        w.setBlock(biggerX, Util.getHighestYAt(biggerX, biggerZ, w)+1, biggerZ, Blocks.torch);
+        w.setBlock(smallerX, Util.getHighestYAt(smallerX, smallerZ, w)+1, smallerZ, Blocks.torch);
+        w.setBlock(biggerX, Util.getHighestYAt(biggerX, smallerZ, w)+1, smallerZ, Blocks.torch);
+        w.setBlock(smallerX, Util.getHighestYAt(smallerX, biggerZ, w)+1, biggerZ, Blocks.torch);
+        
+        int signX = smallerX + ((biggerX-smallerX)/2);
+        int signZ = biggerZ;
+        int signY = Util.getHighestYAt(signX, signZ, w) + 1;
+        Util.placeSign(w, signX, signY, signZ, 0, "§6[Claim]", getOwner(), Integer.toString(getId()), "");
+        
+        int gateX = smallerX + ((biggerX-smallerX)/2);
+        int gateZ = smallerZ;
+        int gateY = Util.getHighestYAt(gateX, gateZ, w);
+        
+        w.setBlock(gateX, gateY, gateZ, Blocks.fence_gate);
+        w.setBlock(gateX, gateY+1, gateZ, Blocks.fence_gate);
+        
         save();
 	}
 	
+	
 	public void undoFences() {
 		WorldServer w = Util.getWorld(getWorld());
-		for (int x = smallerX; x < biggerX; x++) {
+		if (w == null) {
+			return;
+		}
+		for (int x = smallerX; x <= biggerX; x++) {
             int highY = Util.getHighestYAt(x, smallerZ, w);
-            if (Block.getIdFromBlock(w.getBlock(x, highY, smallerZ)) == 85) {
-            	w.setBlock(x, highY, smallerZ, Block.getBlockById(0));
+            for (int y = highY; y > 0; y--) {
+            	int theX = x;
+            	int theZ = smallerZ;
+            	int theY = y;
+            	Block c = w.getBlock(theX, theY, theZ);
+            	if (c == null) {
+            		break;
+            	}
+            	if (c.equals(Blocks.fence)) {
+                	w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.torch)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.fence_gate)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.standing_sign)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+            	}
+            	break;
             }
         }
-        for (int x = smallerX; x < biggerX; x++) {
+        for (int x = smallerX; x <= biggerX; x++) {
         	int highY = Util.getHighestYAt(x, biggerZ, w);
-            if (Block.getIdFromBlock(w.getBlock(x, highY, biggerZ)) == 85) {
-            	w.setBlock(x, highY, biggerZ, Block.getBlockById(0));
+            for (int y = highY; y > 0; y--) {
+            	int theX = x;
+            	int theZ = biggerZ;
+            	int theY = y;
+            	Block c = w.getBlock(theX, theY, theZ);
+            	if (c == null) {
+            		break;
+            	}
+            	if (c.equals(Blocks.fence)) {
+                	w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.torch)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.fence_gate)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.standing_sign)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+            	}
+            	break;
             }
         }
-        for (int z = smallerZ; z < biggerZ; z++) {
+        for (int z = smallerZ; z <= biggerZ; z++) {
         	int highY = Util.getHighestYAt(smallerX, z, w);
-            if (Block.getIdFromBlock(w.getBlock(smallerX, highY, z)) == 85) {
-            	w.setBlock(smallerX, highY, z, Block.getBlockById(0));
+            for (int y = highY; y > 0; y--) {
+            	int theX = smallerX;
+            	int theZ = z;
+            	int theY = y;
+            	Block c = w.getBlock(theX, theY, theZ);
+            	if (c == null) {
+            		break;
+            	}
+            	if (c.equals(Blocks.fence)) {
+                	w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.torch)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.fence_gate)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.standing_sign)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+            	}
+            	break;
             }
         }
-        for (int z = smallerZ; z < biggerZ; z++) {
+        for (int z = smallerZ; z <= biggerZ; z++) {
         	int highY = Util.getHighestYAt(biggerX, z, w);
-            if (Block.getIdFromBlock(w.getBlock(biggerX, highY, z)) == 85) {
-            	w.setBlock(biggerX, highY, z, Block.getBlockById(0));
+            for (int y = highY; y > 0; y--) {
+            	int theX = biggerX;
+            	int theZ = z;
+            	int theY = y;
+            	Block c = w.getBlock(theX, theY, theZ);
+            	if (c == null) {
+            		break;
+            	}
+            	if (c.equals(Blocks.fence)) {
+                	w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.torch)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.fence_gate)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+                }
+            	if (c.equals(Blocks.standing_sign)) {
+            		w.setBlock(theX, theY, theZ, Blocks.air);
+                	continue;
+            	}
+            	break;
             }
-        }
-        int highY = Util.getHighestYAt(biggerX, biggerZ, w);
-        if (Block.getIdFromBlock(w.getBlock(biggerX, highY, biggerZ)) == 85) {
-        	w.setBlock(biggerX, highY, biggerZ, Block.getBlockById(0));
-        }
-        highY = Util.getHighestYAt(smallerX, smallerZ, w);
-        if (Block.getIdFromBlock(w.getBlock(smallerX, highY, smallerZ)) == 85) {
-        	w.setBlock(smallerX, highY, smallerZ, Block.getBlockById(0));
         }
 	}
 	
@@ -657,5 +875,97 @@ public final class Claim {
 			return false;
 		}
 		return isInside(p);
+	}
+	
+	public ClaimBlock getRelativeBlockAt(int x, int y, int z) {
+		WorldServer world = Util.getWorld(this.getWorld());
+		if (world == null) {
+			return null;
+		}
+		
+		int XX = x + getSmallerX();
+		int YY = y;
+		int ZZ = z + getSmallerZ();
+		if (XX > getBiggerX()) {
+			XX = getBiggerX();
+		}
+		if (ZZ > getBiggerZ()) {
+			ZZ = getBiggerZ();
+		}
+		if (YY > 255) {
+			YY = 255;
+		}
+		
+		Block c = world.getBlock(XX, YY, ZZ);
+		int meta = world.getBlockMetadata(XX, YY, ZZ);
+		TileEntity ent = world.getTileEntity(XX, YY, ZZ);
+		
+		NBTTagCompound tag = new NBTTagCompound();
+		if (ent != null) {
+			ent.writeToNBT(tag);
+		}
+		ClaimBlock f = new ClaimBlock(c, meta, tag);
+		return f;
+	}
+	
+	public boolean setRelativeBlockAt(int x, int y, int z, ClaimBlock b) {
+		WorldServer world = Util.getWorld(this.getWorld());
+		if (world == null) {
+			return false;
+		}
+		
+		int XX = x + getSmallerX();
+		int YY = y;
+		int ZZ = z + getSmallerZ();
+		if (XX > getBiggerX()) {
+			XX = getBiggerX();
+		}
+		if (ZZ > getBiggerZ()) {
+			ZZ = getBiggerZ();
+		}
+		if (YY > 255) {
+			YY = 255;
+		}
+		
+		world.removeTileEntity(XX, YY, ZZ);
+		
+		world.setBlock(XX, YY, ZZ, b.block, b.meta, 2);
+		world.setBlockMetadataWithNotify(XX, YY, ZZ, b.meta, 2);
+		
+		TileEntity ent = world.getTileEntity(XX, YY, ZZ);
+		if (ent != null) {
+			b.setNBTPosition(XX, YY, ZZ);
+			if (b.isThaumcraftNode()) {
+				b.setThaumcraftNodeID(XX, YY, ZZ, world.provider.dimensionId);
+			}
+			ent.readFromNBT(b.getNBT());
+		}
+		return true;
+	}
+	
+	public boolean moveBlocksToAndBack(Claim c) {
+		if (c == null) {
+			return false;
+		}
+		if (c.getLenght() != this.getLenght()) {
+			return false;
+		}
+		if (c.getWidth() != this.getWidth()) {
+			return false;
+		}
+		for (int y = 0; y < 256; y++) {
+			for (int x = 0; x < (this.getWidth()+1); x++) {
+				for (int z = 0; z < (this.getLenght()+1); z++) {
+					ClaimBlock thisBlock = getRelativeBlockAt(x, y, z);
+					ClaimBlock otherBlock = c.getRelativeBlockAt(x, y, z);
+					if (thisBlock == null || otherBlock == null) {
+						return false;
+					}
+					setRelativeBlockAt(x, y, z, otherBlock);
+					c.setRelativeBlockAt(x, y, z, thisBlock);
+				}
+			}
+		}
+		return true;
 	}
 }

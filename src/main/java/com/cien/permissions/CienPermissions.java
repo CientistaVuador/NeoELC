@@ -3,13 +3,14 @@ package com.cien.permissions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
 import com.cien.CienCommandBase;
 import com.cien.CommandPreprocessEvent;
+import com.cien.Module;
 import com.cien.Util;
 import com.cien.data.Properties;
+import com.cien.permissions.commands.Perms;
 import com.mojang.authlib.GameProfile;
-
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -17,14 +18,19 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.event.CommandEvent;
 
-public class CienPermissions {
+public class CienPermissions extends Module {
 	
 	public static final CienPermissions PERMISSIONS = new CienPermissions();
 	
 	Properties data = Properties.getProperties("(Module)CienPermissions");
 	
-	public CienPermissions() {
-		System.out.println("CienPermissions Iniciado!");
+	private CienPermissions() {
+		super("CienPermissions");
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Perms());
 	}
 	
 	//Groups
@@ -147,13 +153,16 @@ public class CienPermissions {
         GameProfile gameprofile = minecraftserver.func_152358_ax().func_152655_a(event.getSender().getCommandSenderName());
         minecraftserver.getConfigurationManager().func_152605_a(gameprofile);
         String playerName = event.getSender().getCommandSenderName();
-        Util.run("Deop "+event.getSender().getCommandSenderName(), () -> {
-        	try {
-        		MinecraftServer sv = MinecraftServer.getServer();
-                GameProfile prof = minecraftserver.getConfigurationManager().func_152603_m().func_152700_a(playerName);
-                sv.getConfigurationManager().func_152610_b(prof);
-        	} catch (Exception ex) {} 
-        }, 4);
+        run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				try {
+	        		MinecraftServer sv = MinecraftServer.getServer();
+	                GameProfile prof = minecraftserver.getConfigurationManager().func_152603_m().func_152700_a(playerName);
+	                sv.getConfigurationManager().func_152610_b(prof);
+	        	} catch (Exception ex) {} 
+			}
+		}, 5);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = false)
@@ -162,7 +171,7 @@ public class CienPermissions {
 			return;
 		}
 		if (!(event.command instanceof CienCommandBase)) {
-			if (!event.command.getCommandName().equalsIgnoreCase("perms")) {
+			if (!event.command.getCommandName().equalsIgnoreCase("perms") && !event.command.getCommandName().equalsIgnoreCase("tell")) {
 				if (!hasPermission(event.sender.getCommandSenderName(), "default."+event.command.getCommandName())) {
 					event.setCanceled(true);
 					Util.sendMessage((EntityPlayerMP)event.sender, Util.getErrorPrefix()+"Sem Permissão. (default."+event.command.getCommandName()+")");

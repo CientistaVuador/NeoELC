@@ -2,7 +2,6 @@ package com.cien.economy;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.claims.CienClaims;
@@ -54,7 +53,7 @@ public class Shop {
 		this.yaw = Float.parseFloat(prop.get("yaw"));
 		this.world = prop.get("world");
 		Node shops = prop.getNode("shops");
-		Util.run("Load ChestShops for "+owner, () -> {
+		CienEconomy.ECONOMY.run(() -> {
 			for (Node chest:shops.getNodes()) {
 				try {
 					ChestShop s = new ChestShop(chest);
@@ -68,7 +67,7 @@ public class Shop {
 					System.out.println("Erro ao carregar ChestShop de "+owner+": "+ex.getMessage());
 				}
 			}
-		}, 5);
+		});
 	}
 	
 	public int getID() {

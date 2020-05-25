@@ -1,8 +1,12 @@
 package com.cien.teleport.commands;
 
 import com.cien.CienCommandBase;
+import com.cien.Module;
 import com.cien.Util;
+import com.cien.Module.ModuleRunnable;
 import com.cien.data.Properties;
+import com.cien.teleport.CienTeleport;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
@@ -45,8 +49,11 @@ public class Rtp extends CienCommandBase {
 			Util.teleportPlayer(player, sv, x, Util.getHighestYAt(x, z, sv), z, player.rotationPitch, player.rotationYaw);
 			int imutX = x;
 			int imutZ = z;
-			Util.run("Reteleport Player", () -> {
-				Util.teleportPlayer(player, sv, imutX, Util.getHighestYAt(imutX, imutZ, sv), imutZ, player.rotationPitch, player.rotationYaw);
+			CienTeleport.TELEPORT.run(new ModuleRunnable() {
+				@Override
+				public void run(Module mdl, ModuleRunnable r) {
+					Util.teleportPlayer(player, sv, imutX, Util.getHighestYAt(imutX, imutZ, sv), imutZ, player.rotationPitch, player.rotationYaw);
+				}
 			}, 20);
 			Util.sendMessage(player, Util.getPrefix()+"Teleportado!");
 			prop.set("rtpDelay", Long.toString(System.currentTimeMillis()+30*1000));

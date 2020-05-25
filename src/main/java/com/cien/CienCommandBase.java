@@ -33,16 +33,11 @@ public abstract class CienCommandBase extends CommandBase {
 		if (arr.length == 0) {
 			return str;
 		}
-		for (int i = 0; i < (arr.length-1); i++) {
-			str.add(arr[i]);
-		}
 		String toComplete = arr[arr.length-1];
-		String player = Util.getOnlinePlayerInexact(toComplete).getCommandSenderName();
-		if (player == null) {
-			str.add(toComplete);
-			return str;
+		EntityPlayerMP[] players = Util.getOnlinePlayersInexact(toComplete);
+		for (EntityPlayerMP pl:players) {
+			str.add(pl.getCommandSenderName());
 		}
-		str.add(player);
 		return str;
 	}
 	

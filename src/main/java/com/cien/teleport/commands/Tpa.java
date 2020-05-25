@@ -1,9 +1,11 @@
 package com.cien.teleport.commands;
 
 import com.cien.CienCommandBase;
-import com.cien.ScheduledTask;
+import com.cien.Module;
 import com.cien.Util;
+import com.cien.Module.ModuleRunnable;
 import com.cien.data.Properties;
+import com.cien.teleport.CienTeleport;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -36,20 +38,26 @@ public class Tpa extends CienCommandBase {
 		}
 		other.setMemory("enviandoTpa", new Object());
 		tpPlayer.addChatMessage(Util.fixColors(Util.getPrefix()+"§a"+player.getCommandSenderName()+" §6Quer se teleportar até você, aceite com /tpac ou recuse com /tprc"));
-		ScheduledTask pedido = Util.schedule("Tpa - "+player.getCommandSenderName()+" -> "+prop.getName(), () -> {
-			if (prop.getMemory("currentTpa") == null) {
-				return;
+		ModuleRunnable pedido = CienTeleport.TELEPORT.run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				if (prop.getMemory("currentTpa") == null) {
+					return;
+				}
+				tpPlayer.addChatMessage(Util.fixColors(Util.getPrefix()+"§a"+player.getCommandSenderName()+" §6Quer se teleportar até você, aceite com /tpac ou recuse com /tprc"));
 			}
-			tpPlayer.addChatMessage(Util.fixColors(Util.getPrefix()+"§a"+player.getCommandSenderName()+" §6Quer se teleportar até você, aceite com /tpac ou recuse com /tprc"));
-		}, 5*20);
+		}, 5*20, true);
 		prop.setMemory("currentTpa", player.getCommandSenderName());
-		Util.run("Tpa-Ignore - "+player.getCommandSenderName()+" -> "+prop.getName(), () -> {
-			pedido.setComplete(true);
-			if (prop.getMemory("currentTpa") != null) {
-				tpPlayer.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Pedido de teleporte ignorado."));
-				player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Pedido de teleporte ignorado."));
-				other.setMemory("enviandoTpa", null);
-				prop.setMemory("currentTpa", null);
+		CienTeleport.TELEPORT.run(new ModuleRunnable() {
+			@Override
+			public void run(Module mdl, ModuleRunnable r) {
+				pedido.cancel();
+				if (prop.getMemory("currentTpa") != null) {
+					tpPlayer.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Pedido de teleporte ignorado."));
+					player.addChatMessage(Util.fixColors(Util.getErrorPrefix()+"Pedido de teleporte ignorado."));
+					other.setMemory("enviandoTpa", null);
+					prop.setMemory("currentTpa", null);
+				}
 			}
 		}, 30*20);
 		player.addChatMessage(Util.fixColors(Util.getPrefix()+"Pedido de teleporte enviado."));

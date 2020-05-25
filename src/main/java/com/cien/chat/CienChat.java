@@ -1,26 +1,57 @@
 package com.cien.chat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.cien.Module;
 import com.cien.PositiveLocation;
 import com.cien.Util;
+import com.cien.chat.commands.Desmutar;
+import com.cien.chat.commands.Global;
+import com.cien.chat.commands.Ignorar;
+import com.cien.chat.commands.Mutar;
+import com.cien.chat.commands.Privado;
+import com.cien.chat.commands.Real;
+import com.cien.chat.commands.Responder;
+import com.cien.chat.commands.SetNick;
+import com.cien.chat.commands.SetPrefix;
+import com.cien.chat.commands.Staff;
+import com.cien.chat.commands.Vip;
 import com.cien.data.Properties;
 import com.cien.discord.CienDiscord;
 import com.cien.login.CienLogin;
 import com.cien.permissions.CienPermissions;
+
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 
-public class CienChat {
+public class CienChat extends Module {
 	
 	public static final CienChat CHAT = new CienChat();
 	
 	private CienChat() {
-		System.out.println("CienChat Iniciado!");
+		super("CienChat");
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new Global());
+    	event.registerServerCommand(new SetNick());
+    	event.registerServerCommand(new SetPrefix());
+    	event.registerServerCommand(new Desmutar());
+    	event.registerServerCommand(new Mutar());
+    	event.registerServerCommand(new Vip());
+    	event.registerServerCommand(new Staff());
+    	event.registerServerCommand(new Privado());
+    	event.registerServerCommand(new Responder());
+    	event.registerServerCommand(new Real());
+    	event.registerServerCommand(new Ignorar());
 	}
 	
 	public long getMutedTimeLeft(String player) {
@@ -52,6 +83,25 @@ public class CienChat {
 			return null;
 		}
 		return (String)obj;
+	}
+	
+	public boolean setIgnoringPlayer(String player, String target) {
+		Properties prop = Properties.getProperties(player);
+		List<String> list = new ArrayList<>(Arrays.asList(prop.getArray("ignoringPlayers")));
+		if (list.contains(target)) {
+			list.remove(target);
+			prop.setArray("ignoringPlayers", list.toArray(new String[list.size()]));
+			return false;
+		}
+		list.add(target);
+		prop.setArray("ignoringPlayers", list.toArray(new String[list.size()]));
+		return true;
+	}
+	
+	public boolean isIgnoringPlayer(String player, String target) {
+		Properties prop = Properties.getProperties(player);
+		List<String> list = new ArrayList<>(Arrays.asList(prop.getArray("ignoringPlayers")));
+		return list.contains(target);
 	}
 	
 	public void setMutedTimeLeft(String player, long time) {
@@ -176,7 +226,11 @@ public class CienChat {
 			if (player.dimension == dim) {
 				int distance = loc.distanceXZ(loc2);
 				if (distance <= 100) {
-					Util.sendMessage(player, msg);
+					if (CienChat.CHAT.isIgnoringPlayer(player.getCommandSenderName(), event.player.getCommandSenderName())) {
+						Util.sendMessage(player, Ignorar.IgnoredMessageSuperChatCommand.buildCommandForMessage(msg));
+					} else {
+						Util.sendMessage(player, msg);
+					}
 					continue;
 				}
 			}
@@ -199,7 +253,14 @@ public class CienChat {
 	@SubscribeEvent(priority = EventPriority.HIGHEST, receiveCanceled = true)
 	public void onCommand(CommandEvent event) {
 		if (event.command.getCommandName().equalsIgnoreCase("tell")) {
-			Util.sendMessage(event.sender, Util.getErrorPrefix()+"Use /p <Player> <Mensagem> ao invés de /tell");
+			StringBuilder b = new StringBuilder(64);
+			for (int i = 0; i < event.parameters.length; i++) {
+				b.append(event.parameters[i]);
+				if (i != (event.parameters.length-1)) {
+					b.append(' ');
+				}
+			}
+			MinecraftServer.getServer().getCommandManager().executeCommand(event.sender, "/p "+b.toString());
 			event.setCanceled(true);
 		}
 	}

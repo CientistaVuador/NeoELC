@@ -10,6 +10,7 @@ import com.cien.Util;
 import com.cien.chat.CienChat;
 import com.cien.data.Properties;
 import com.cien.permissions.CienPermissions;
+import com.cien.utils.CienUtils;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -83,11 +84,11 @@ public class CienDiscord implements EventListener {
 			this.redirectRoleID = Long.parseLong(redirectRole);
 		}
 		
-		Util.run("Server Started", () -> {
+		CienUtils.UTILS.run(() -> {
 			CienDiscord.DISCORD.sendMessage(":white_check_mark: Servidor iniciou.");
 			CienDiscord.DISCORD.setChannelsTopic("Servidor iniciou, aguarde a atualização do tópico.");
 		}, 20);
-		Util.schedule("Update Chat Description", () -> {
+		CienUtils.UTILS.run(() -> {
 			if (!running) {
 				return;
 			}
@@ -109,7 +110,7 @@ public class CienDiscord implements EventListener {
 			if (command != null) {
 				command.getManager().setTopic(description).queue();
 			}
-		}, 30*20);
+		}, 30*20, true);
 	}
 	
 	public String generateToken(long discordID) {
@@ -426,7 +427,7 @@ public class CienDiscord implements EventListener {
 		return running;
 	}
 	
-	public void start() throws Exception {
+	public void startDiscord() throws Exception {
 		if (running) {
 			return;
 		}
@@ -577,7 +578,7 @@ public class CienDiscord implements EventListener {
 	
 	@Override
 	public void onEvent(GenericEvent arg0) {
-		Util.run("Discord Event", () -> {
+		CienUtils.UTILS.run(() -> {
 			MinecraftForge.EVENT_BUS.post(new DiscordGenericEvent(arg0));
 		});
 	}

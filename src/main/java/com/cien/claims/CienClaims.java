@@ -3,10 +3,12 @@ package com.cien.claims;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.cien.Module;
 import com.cien.PositiveLocation;
 import com.cien.Util;
 import com.cien.data.Properties;
 import com.cien.permissions.CienPermissions;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
@@ -30,7 +32,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 
-public class CienClaims {
+public class CienClaims extends Module {
 
 	public static final CienClaims CLAIMS = new CienClaims();
 	
@@ -40,31 +42,34 @@ public class CienClaims {
 	private final Properties prop = Properties.getProperties("(Module)CienClaims");
 	
 	private CienClaims() {
-		Util.run("Claims Load", () -> {
-			String[] names = Properties.getAllProperties();
-			for (String name:names) {
-				try {
-					if (name.startsWith("(Claim)")) {
-						claims.add(new Claim(Properties.getProperties(name)));
-					}
-				} catch (Exception ex) {
-					System.out.println("Erro ao carregar claim -> "+name+" -> "+ex.getClass().getName()+": "+ex.getMessage());
+		super("CienClaims");
+	}
+	
+	@Override
+	public void preStart() {
+		String[] names = Properties.getAllProperties();
+		for (String name:names) {
+			try {
+				if (name.startsWith("(Claim)")) {
+					claims.add(new Claim(Properties.getProperties(name)));
 				}
+			} catch (Exception ex) {
+				System.out.println("Erro ao carregar claim -> "+name+" -> "+ex.getClass().getName()+": "+ex.getMessage());
 			}
-		});
-		Util.schedule("Dar Blocos", () -> {
+		}
+		blockedItems.addAll(Arrays.asList(prop.getArray("blockedItems")));
+		dangerEntity.addAll(Arrays.asList(prop.getArray("dangerousEntities")));
+	}
+	
+	@Override
+	public void start() {
+		run(() -> {
 			for (EntityPlayerMP player:Util.getOnlinePlayers()) {
 				CienClaims.CLAIMS.addBlocksTo(player.getCommandSenderName(), 100);
 				player.addChatMessage(Util.fixColors(Util.getPrefix()+"Você recebeu 100 blocos de claim por jogar no servidor."));
 			}
-		}, 5*60*20);
-		Util.run("Load Blocked Items", () -> {
-			blockedItems.addAll(Arrays.asList(prop.getArray("blockedItems")));
-		});
-		Util.run("Load Dangerous Entities", () -> {
-			dangerEntity.addAll(Arrays.asList(prop.getArray("dangerousEntities")));
-		});
-		Util.schedule("Verificar chunks e claims.", () -> {
+		}, 5*60*20, true);
+		run(() -> {
     		for (WorldServer w:Util.getWorlds()) {
     			for (Chunk k:Util.getLoadedChunksOf(w)) {
     				int entities = 0;
@@ -128,7 +133,34 @@ public class CienClaims {
         			}
     			}
     		}
-    	}, 5*60*20);
+    	}, 5*60*20, true);
+	}
+	
+	@Override
+	public void registerCommands(FMLServerStartingEvent event) {
+		event.registerServerCommand(new com.cien.claims.commands.Blocks());
+    	event.registerServerCommand(new com.cien.claims.commands.Claim());
+    	event.registerServerCommand(new com.cien.claims.commands.ClaimAtual());
+    	event.registerServerCommand(new com.cien.claims.commands.Pos1());
+    	event.registerServerCommand(new com.cien.claims.commands.Pos2());
+    	event.registerServerCommand(new com.cien.claims.commands.Expand());
+    	event.registerServerCommand(new com.cien.claims.commands.SetFlag());
+    	event.registerServerCommand(new com.cien.claims.commands.VerFlags());
+    	event.registerServerCommand(new com.cien.claims.commands.SetBlockedItem());
+    	event.registerServerCommand(new com.cien.claims.commands.BlockedItems());
+    	event.registerServerCommand(new com.cien.claims.commands.EntidadesClaim());
+    	event.registerServerCommand(new com.cien.claims.commands.SetDangerousEntity());
+    	event.registerServerCommand(new com.cien.claims.commands.DangerousEntities());
+    	event.registerServerCommand(new com.cien.claims.commands.MeusClaims());
+    	event.registerServerCommand(new com.cien.claims.commands.TpClaim());
+    	event.registerServerCommand(new com.cien.claims.commands.Abandonclaim());
+    	event.registerServerCommand(new com.cien.claims.commands.TransferirClaim());
+    	event.registerServerCommand(new com.cien.claims.commands.TrustList());
+    	event.registerServerCommand(new com.cien.claims.commands.Trust());
+    	event.registerServerCommand(new com.cien.claims.commands.ETrust());
+    	event.registerServerCommand(new com.cien.claims.commands.Untrust());
+    	event.registerServerCommand(new com.cien.claims.commands.IgnoreClaims());
+    	event.registerServerCommand(new com.cien.claims.commands.MoveClaim());
 	}
 	
 	public void verifyChunksAndClaims() {
@@ -611,6 +643,9 @@ public class CienClaims {
 			int z = loc.getZ();
 			int y = player.worldObj.getHeightValue(x, z);
 			Util.teleportPlayer(player, player.worldObj, x, y, z, player.rotationPitch, player.rotationYaw);
+			CienClaims.CLAIMS.run(() -> {
+				Util.teleportPlayer(player, player.worldObj, x, y, z, player.rotationPitch, player.rotationYaw);
+			}, 10);
 		}
 	}
 	

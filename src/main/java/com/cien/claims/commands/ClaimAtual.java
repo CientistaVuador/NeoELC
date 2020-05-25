@@ -27,9 +27,9 @@ public class ClaimAtual extends CienCommandBase {
 			}
 		}
 		if (!close) {
-			Util.sendMessage(player, Util.getPrefix()+"Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
+			Util.sendMessage(player, Util.getPrefix()+"("+f.getId()+") Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
 		} else {
-			Util.sendMessage(player, Util.getPrefix()+"(Próximo de você) Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
+			Util.sendMessage(player, Util.getPrefix()+"(Próximo de você) ("+f.getId()+") Claim de "+f.getOwner()+", "+f.getWidth()+"x"+f.getLenght());
 		}
 	}
 

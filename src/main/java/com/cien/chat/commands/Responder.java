@@ -30,7 +30,7 @@ public class Responder extends CienCommandBase {
 					b.append(' ');
 				}
 			}
-			Util.run("Private Message Response for "+sender.getCommandSenderName(), () -> {
+			CienChat.CHAT.run(() -> {
 				MinecraftServer.getServer().getCommandManager().executeCommand(sender, "p "+last+" "+b.toString());
 			});
 		}
