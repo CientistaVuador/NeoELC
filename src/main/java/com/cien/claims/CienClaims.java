@@ -632,6 +632,9 @@ public class CienClaims extends Module {
 			if (c.getOwner().equals(player.getCommandSenderName())) {
 				return;
 			}
+			if (CienPermissions.PERMISSIONS.hasPermission(player.getCommandSenderName(), "claim.entrar."+c.getId())) {
+				return;
+			}
 			if (c.getFlag("permitirEntrar#*")) {
 				return;
 			}

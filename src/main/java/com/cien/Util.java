@@ -521,63 +521,49 @@ public class Util {
 		StringBuilder builder = new StringBuilder(text.length());
 		for (char c:text.toCharArray()) {
 			if (c == ' ') {
-				if (builder.length() != 0) {
-					words.add(builder.toString());
-					builder.setLength(0);
-				}
+				words.add(builder.toString());
+				builder.setLength(0);
 				continue;
 			}
 			builder.append(c);
 		}
-		if (builder.length() != 0) {
+		if (builder.length() > 0) {
 			words.add(builder.toString());
 		}
+		builder.setLength(0);
 		List<String> list = new ArrayList<>();
-		StringBuilder b = new StringBuilder(text.length());
 		int spaceLeft = 15;
-		for (int i = 0; i < words.size(); i++) {
-			String word = words.get(i);
+		for (String word:words) {
+			if (spaceLeft != 15 && spaceLeft != 0 && word.length() < spaceLeft) {
+				builder.append(' ');
+				spaceLeft--;
+			}
 			if (word.length() > 15) {
-				if (spaceLeft == 0) {
-					i -= 1;
-					list.add(b.toString());
-					b.setLength(0);
-					spaceLeft = 15;
-					continue;
-				}
-				for (char c:word.toCharArray()) {
+				StringBuilder wordSplit = new StringBuilder(word.length());
+				for (int i = 0; i < word.length(); i++) {
 					if (spaceLeft == 0) {
-						list.add(b.toString());
-						b.setLength(0);
+						list.add(wordSplit.toString());
+						wordSplit.setLength(0);
 						spaceLeft = 15;
 					}
-					b.append(c);
-					spaceLeft -= 1;
+					wordSplit.append(word.charAt(i));
+					spaceLeft--;
+				}
+				if (wordSplit.length() > 0) {
+					list.add(wordSplit.toString());
 				}
 				continue;
 			}
-			if ((spaceLeft - (word.length() + 1)) >= 0) {
-				b.append(word);
-				spaceLeft -= word.length() + 1;
-				if (i != (words.size() - 1) && spaceLeft != 0) {
-					String next = null;
-					if (words.size() > (i + 1)) {
-						next = words.get(i + 1);
-					}
-					if (next != null && (spaceLeft - (next.length() + 1)) >= 0) {
-						b.append(' ');
-						spaceLeft -= 1;
-					}
-				}
-			} else {
-				list.add(b.toString());
-				b.setLength(0);
+			if (word.length() > spaceLeft) {
+				list.add(builder.toString());
+				builder.setLength(0);
 				spaceLeft = 15;
-				i -= 1;
 			}
+			builder.append(word);
+			spaceLeft -= word.length();
 		}
-		if (b.length() != 0) {
-			list.add(b.toString());
+		if (builder.length() > 0) {
+			list.add(builder.toString());
 		}
 		return list.toArray(new String[list.size()]);
 	}
@@ -884,6 +870,23 @@ public class Util {
 		return ee;
 	}
 	
+	public static String removeColorCodes(String msg) {
+		StringBuilder b = new StringBuilder(64);
+		boolean color = false;
+		for (char c:msg.toCharArray()) {
+			if (color) {
+				color = false;
+				continue;
+			}
+			if (c == '§') {
+				color = true;
+				continue;
+			}
+			b.append(c);
+		}
+		return b.toString();
+	}
+	
 	public static IChatComponent msgToComponent(String msg) {
 		StringBuilder b = new StringBuilder(64);
 		boolean color = false;
@@ -1049,17 +1052,14 @@ public class Util {
 				String text = b.toString();
 				current = new ChatComponentText(text);
 				boolean http = false;
-				if (text.startsWith("http")) {
+				String noColorcodes = removeColorCodes(text);
+				if (noColorcodes.startsWith("http")) {
 					http = true;
 					superchat = true;
-					style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
+					style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, noColorcodes));
 					style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
 				}
 				
-				if (http) {
-					style.setChatClickEvent(null);
-					style.setChatHoverEvent(null);
-				}
 				if (text.startsWith("~") && !superchat) {
 					IChatComponent f = superChatPreProcess(text, current);
 					if (f == current) {
@@ -1077,6 +1077,10 @@ public class Util {
 				b.setLength(0);
 				
 				style = style.createDeepCopy();
+				if (http) {
+					style.setChatClickEvent(null);
+					style.setChatHoverEvent(null);
+				}
 				
 				main.appendSibling(new ChatComponentText(" "));
 				continue;
@@ -1086,9 +1090,10 @@ public class Util {
 		if (b.length() != 0) {
 			String text = b.toString();
 			current = new ChatComponentText(text);
-			if (text.startsWith("http")) {
+			String noColorcodes = removeColorCodes(text);
+			if (noColorcodes.startsWith("http")) {
 				superchat = true;
-				style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, text));
+				style.setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, noColorcodes));
 				style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Clique para abrir.")));
 			}
 			if (text.startsWith("~") && !superchat) {

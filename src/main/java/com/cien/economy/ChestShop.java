@@ -5,7 +5,6 @@ import com.cien.Util;
 import com.cien.claims.CienClaims;
 import com.cien.claims.Claim;
 import com.cien.data.Node;
-
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,8 +14,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -44,14 +41,10 @@ public class ChestShop {
 	public ChestShop(ItemStack item, boolean nbt, boolean buy, LongDecimal price, int x, int y, int z, String world, String owner, boolean unlimited) {
 		this.keepNbt = nbt;
 		if (this.keepNbt) {
-			this.item = item;
+			this.item = item.copy();
 		} else {
 			ItemStack f = item.copy();
-			try {
-				f.setTagCompound((NBTTagCompound)JsonToNBT.func_150315_a("{}"));
-			} catch (NBTException e) {
-				e.printStackTrace();
-			}
+			f.setTagCompound(new NBTTagCompound());
 			this.item = f;
 		}
 		this.buy = buy;

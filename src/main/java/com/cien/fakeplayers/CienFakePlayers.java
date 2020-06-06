@@ -110,7 +110,7 @@ public class CienFakePlayers extends Module {
 			return;
 		}
 		if (at.source.getSourceOfDamage() instanceof EntityPlayer) {
-			EntityPlayer player = (EntityPlayer) at.source.getEntity();
+			EntityPlayer player = (EntityPlayer) at.source.getSourceOfDamage();
 			if (isFakePlayer(player.getCommandSenderName())) {
 				addFakePlayer(player.getCommandSenderName());
 			}

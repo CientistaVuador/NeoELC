@@ -37,6 +37,9 @@ public class StringArray {
 	}
 	
 	public static String[] toStringArray(String s) {
+		if (s == null) {
+			return new String[0];
+		}
 		StringBuilder b = new StringBuilder(s.length());
 		boolean escape = false;
 		boolean quote = false;

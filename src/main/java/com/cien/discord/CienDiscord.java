@@ -1,6 +1,8 @@
 package com.cien.discord;
 
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,8 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Icon;
+import net.dv8tion.jda.api.entities.Icon.IconType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
@@ -26,6 +30,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.managers.GuildManager;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.DamageSource;
@@ -34,7 +39,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
 public class CienDiscord implements EventListener {
-
+	
 	public static final CienDiscord DISCORD = new CienDiscord();
 	
 	private final Map<String, Long> tokens = new HashMap<>();
@@ -48,6 +53,8 @@ public class CienDiscord implements EventListener {
 	private String token = null;
 	private boolean running = false;
 	private String link = null;
+	
+	private long nextIconChange = System.currentTimeMillis() + 30*60*1000;
 	
 	private long commandChatID = 0;
 	private long staffChatID = 0;
@@ -111,6 +118,54 @@ public class CienDiscord implements EventListener {
 				command.getManager().setTopic(description).queue();
 			}
 		}, 30*20, true);
+		CienUtils.UTILS.run(() -> {
+			if (System.currentTimeMillis() >= nextIconChange) {
+				nextIconChange = System.currentTimeMillis() + 30*60*1000;
+				System.out.println("Mudando ícone do discord e nome...");
+				File icons = new File("discord_icons");
+				if (!icons.exists()) {
+					System.out.println("Pasta de ícones (discord_icons) não encontrada.");
+					return;
+				}
+				if (!icons.isDirectory()) {
+					System.out.println("Pasta de ícones (discord_icons) não é válida.");
+					return;
+				}
+				File[] files = icons.listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						if (pathname.isDirectory()) {
+							return false;
+						}
+						if (pathname.getName().endsWith(".png")) {
+							return true;
+						}
+						return false;
+					}
+				});
+				if (files.length == 0) {
+					System.out.println("Nenhum .png foi encontrado na pasta de ícones.");
+					return;
+				}
+				try {
+					int random = (int) (Math.random() * files.length);
+					File f = files[random];
+					String name = f.getName();
+					name = name.substring(0, name.length()-".png".length())+" (NeoELC)";
+					GuildManager manager = getGuild().getManager();
+					manager.setName(name).setIcon(Icon.from(f, IconType.PNG)).queue((Void arg0) -> {
+						System.out.println("Ícone e nome alterado com sucesso!");
+					}, (Throwable arg1) -> {
+						System.out.println("Erro ao alterar o ícone");
+						arg1.printStackTrace();
+					});
+					System.out.println("Enviado request para mudar o ícone.");
+				} catch (Exception ex) {
+					System.out.println("Erro ao mudar o ícone");
+					ex.printStackTrace();
+				}
+			}
+		}, 10, true);
 	}
 	
 	public String generateToken(long discordID) {

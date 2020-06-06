@@ -271,7 +271,7 @@ public class CienEconomy extends Module {
 	@SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		EntityPlayerMP player = (EntityPlayerMP) event.entityPlayer;
-		if (event.action.equals(PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK)) {
+		if (event.action.equals(PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)) {
 			Properties prop = Properties.getProperties(player.getCommandSenderName());
 			Object[] mem = (Object[])prop.getMemory("SHOP_TO_BUILD");
 			if (mem != null) {
@@ -293,6 +293,8 @@ public class CienEconomy extends Module {
 				if (chest.placeSignAndChest(Util.getPlayerDirectionReversed(player))) {
 					shop.addChestShop(chest);
 					prop.setMemory("SHOP_TO_BUILD", null);
+					Util.sendMessage(player, Util.getPrefix()+"Loja Construída!");
+					event.setCanceled(true);
 				} else {
 					Claim current = chest.getCurrentClaim();
 					if (current == null) {

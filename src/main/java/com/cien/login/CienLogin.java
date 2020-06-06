@@ -109,7 +109,14 @@ public final class CienLogin extends Module {
     	if (getPassword(event.player.getCommandSenderName()) == null) {
     		NEED_REGISTER.add((EntityPlayerMP)event.player);
     	} else {
-    		NEED_LOGIN.add((EntityPlayerMP)event.player);
+    		EntityPlayerMP p = (EntityPlayerMP) event.player;
+    		Properties prop = Properties.getProperties(p.getCommandSenderName());
+    		String ip = prop.get("lastLoginIP");
+    		if (ip != null && p.getPlayerIP().equals(ip)) {
+    			Util.sendMessage(p, Util.getPrefix()+"Logado via ip, login não é necessário.");
+    		} else {
+    			NEED_LOGIN.add(p);
+    		}
     	}
     }
 	

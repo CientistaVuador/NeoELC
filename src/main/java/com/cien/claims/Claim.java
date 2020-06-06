@@ -574,7 +574,6 @@ public final class Claim {
         int gateY = Util.getHighestYAt(gateX, gateZ, w);
         
         w.setBlock(gateX, gateY, gateZ, Blocks.fence_gate);
-        w.setBlock(gateX, gateY+1, gateZ, Blocks.fence_gate);
         
         save();
 	}

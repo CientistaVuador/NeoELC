@@ -26,6 +26,7 @@ public class Register extends CienCommandBase {
 					prop.set("password", pas1);
 					prop.set("firstLogin", Long.toString(System.currentTimeMillis()));
 					prop.set("realName", sender.getCommandSenderName());
+					prop.set("lastLoginIP", player.getPlayerIP());
 					CienLogin.NEED_REGISTER.remove((EntityPlayerMP)sender);
 					sender.addChatMessage(Util.fixColors(Util.getPrefix()+"Sucesso!"));
 					prop.save();

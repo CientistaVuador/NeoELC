@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import com.cien.announcer.CienAnnouncer;
 import com.cien.banitem.CienBanItem;
 import com.cien.chat.CienChat;
 import com.cien.claims.CienClaims;
@@ -20,6 +22,7 @@ import com.cien.discord.commands.Discord;
 import com.cien.discord.commands.Token;
 import com.cien.economy.CienEconomy;
 import com.cien.fakeplayers.CienFakePlayers;
+import com.cien.invites.CienInvites;
 import com.cien.kits.CienKits;
 import com.cien.levels.CienLevels;
 import com.cien.login.CienLogin;
@@ -210,6 +213,12 @@ public class NeoELC {
         
         //CienTeleport
         ModuleManager.register(CienTeleport.TELEPORT);
+        
+        //CienInvites
+        ModuleManager.register(CienInvites.INVITES);
+        
+        //CienAnnouncer
+        ModuleManager.register(CienAnnouncer.ANNOUNCER);
         
         CienDiscord.DISCORD.sendMessage(":eight_spoked_asterisk: Servidor iniciando... (FASE 2)");
     }
