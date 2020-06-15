@@ -9,6 +9,8 @@ import com.cien.data.Properties;
 import com.cien.utils.commands.Claimlag;
 import com.cien.utils.commands.Invsee;
 import com.cien.utils.commands.Lagtop;
+import com.cien.utils.commands.Lanterna;
+import com.cien.utils.commands.Tempo;
 import com.cien.utils.commands.Tiletick;
 import com.cien.utils.commands.Vanish;
 
@@ -28,10 +30,38 @@ public class CienUtils extends Module {
 	private final Map<Class<?>, Long> timeCache = new HashMap<>();
 	private final Map<Claim, Long> claimTimeCache = new HashMap<>();
 	private long nextClaimCacheReset = 0;
+	private long nextPlayerTimeUpdate = 0;
 	
 	private CienUtils() {
 		super("CienUtils");
 	}
+	
+	@Override
+	public void start() {
+		nextPlayerTimeUpdate = System.currentTimeMillis() + 1000;
+	}
+	
+	@Override
+	public void tick() {
+		if (System.currentTimeMillis() >= nextPlayerTimeUpdate) {
+			nextPlayerTimeUpdate = System.currentTimeMillis() + 1000;
+			for (EntityPlayerMP player:Util.getOnlinePlayers()) {
+				Properties prop = Properties.getProperties(player.getCommandSenderName());
+				String currentTimeStr = prop.get("currentTimeOnline");
+				long currentTime = 0;
+				if (currentTimeStr != null) {
+					try {
+						currentTime = Long.parseLong(currentTimeStr);
+					} catch (NumberFormatException ex) {
+						ex.printStackTrace();
+					}
+				}
+				currentTime += 1000;
+				prop.set("currentTimeOnline", Long.toString(currentTime));
+			}
+		}
+	}
+	
 	
 	@Override
 	public void registerCommands(FMLServerStartingEvent event) {
@@ -40,6 +70,22 @@ public class CienUtils extends Module {
 		event.registerServerCommand(new Lagtop());
 		event.registerServerCommand(new Tiletick());
 		event.registerServerCommand(new Vanish());
+		event.registerServerCommand(new Tempo());
+		event.registerServerCommand(new Lanterna());
+	}
+	
+	public long getOnlineTimeOf(String player) {
+		Properties prop = Properties.getProperties(player);
+		String time = prop.get("currentTimeOnline");
+		if (time != null) {
+			try {
+				return Long.parseLong(time);
+			} catch (NumberFormatException ex) {
+				ex.printStackTrace();
+				return 0;
+			}
+		}
+		return 0;
 	}
 	
 	public long getTileEntityTickTime(TileEntity ent) {

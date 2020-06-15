@@ -17,12 +17,8 @@ public class Unregister extends DiscordCommand {
 		if (playerName == null) {
 			CienDiscord.DISCORD.sendCommandMessage("<@"+user.getIdLong()+"> Você não está registrado.");
 		} else {
-			if (CienDiscord.DISCORD.hasDiscordID(playerName)) {
-				CienDiscord.DISCORD.setDiscordID(playerName, 0);
-				CienDiscord.DISCORD.sendCommandMessage("<@"+user.getIdLong()+"> Sucesso!");
-			} else {
-				CienDiscord.DISCORD.sendCommandMessage("<@"+user.getIdLong()+"> Erro desconhecido.");
-			}
+			CienDiscord.DISCORD.setDiscordID(playerName, 0);
+			CienDiscord.DISCORD.sendCommandMessage("<@"+user.getIdLong()+"> Sucesso!");
 		}
 	}
 

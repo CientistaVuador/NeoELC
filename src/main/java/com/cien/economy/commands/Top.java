@@ -42,7 +42,16 @@ public class Top extends CienCommandBase {
 					break;
 				}
 				max++;
-				Util.sendMessage(player, " §6"+p.getCommandSenderName()+" - C$ "+CienEconomy.ECONOMY.getPlayerMoney(p.getCommandSenderName()).toString());
+				String playerName = p.getCommandSenderName();
+				char[] chars = new char[16];
+				for (int i = 0; i < chars.length; i++) {
+					if (i < playerName.length()) {
+						chars[i] = playerName.charAt(i);
+					} else {
+						chars[i] = ' ';
+					}
+				}
+				Util.sendMessage(player, " §6"+new String(chars)+"| C$ "+CienEconomy.ECONOMY.getPlayerMoney(playerName).toString());
 			}
 		}
 	}

@@ -45,10 +45,10 @@ public class Votifier extends Thread {
 	
 	@Override
 	public void run() {
-		while (socket != null) {
+		while (true) {
 			try {
 				Socket client = socket.accept();
-				client.setSoTimeout(5000);
+				client.setSoTimeout(300);
 				BufferedWriter output = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 				BufferedInputStream input = new BufferedInputStream(client.getInputStream());
 				
@@ -60,6 +60,11 @@ public class Votifier extends Thread {
 				input.read(block, 0, block.length);
 				
 				block = KeyManager.decrypt(block, pair);
+				
+				if (block == null) {
+					continue;
+				}
+				
 				int position = 0;
 				
 				String opcode = readString(block, position);

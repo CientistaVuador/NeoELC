@@ -639,9 +639,40 @@ public class Util {
 		return Properties.hasProperties(player);
 	}
 	
+	private static boolean shouldBeIgnored(Block c) {
+		if (Blocks.air.equals(c)) {
+			return true;
+		}
+		if (Blocks.tallgrass.equals(c)) {
+			return true;
+		}
+		if (Blocks.double_plant.equals(c)) {
+			return true;
+		}
+		if (Blocks.snow.equals(c)) {
+			return true;
+		}
+		if (Blocks.snow_layer.equals(c)) {
+			return true;
+		}
+		if (Blocks.cactus.equals(c)) {
+			return true;
+		}
+		if (Blocks.red_flower.equals(c)) {
+			return true;
+		}
+		if (Blocks.yellow_flower.equals(c)) {
+			return true;
+		}
+		if (Blocks.deadbush.equals(c)) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static int getHighestYAt(int x, int z, WorldServer world) {
 		for (int i = 255; i > 0; i--) {
-			if (Block.getIdFromBlock(world.getBlock(x, i, z)) != 0) {
+			if (!shouldBeIgnored(world.getBlock(x, i, z))) {
 				return i;
 			}
 		}

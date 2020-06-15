@@ -161,6 +161,7 @@ public class CienClaims extends Module {
     	event.registerServerCommand(new com.cien.claims.commands.Untrust());
     	event.registerServerCommand(new com.cien.claims.commands.IgnoreClaims());
     	event.registerServerCommand(new com.cien.claims.commands.MoveClaim());
+    	event.registerServerCommand(new com.cien.claims.commands.ClaimBackupTest());
 	}
 	
 	public void verifyChunksAndClaims() {

@@ -31,7 +31,7 @@ public class RedirectChatManager {
 	private RedirectChatManager() {
 		CienUtils.UTILS.run(() -> {
 			theManager.update();
-		}, 20);
+		}, 20, true);
 	}
 	
 	public void redirect(User s, String msg) {

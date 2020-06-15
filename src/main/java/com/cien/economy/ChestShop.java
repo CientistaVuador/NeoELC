@@ -124,7 +124,11 @@ public class ChestShop {
 	}
 	
 	public ItemStack getItem() {
-		return item.copy();
+		ItemStack s = item.copy();
+		if (!keepNbt) {
+			s.setTagCompound(null);
+		}
+		return s;
 	}
 	
 	public boolean isUnlimited() {

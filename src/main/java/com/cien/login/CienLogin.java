@@ -57,6 +57,22 @@ public final class CienLogin extends Module {
     	event.registerServerCommand(new SetPassword());
 	}
 	
+	public long getRegisterTime(String player) {
+		if (player != null) {
+			Properties prop = Properties.getProperties(player);
+			String time = prop.get("firstLogin");
+			if (time != null) {
+				try {
+					return Long.parseLong(time);
+				} catch (NumberFormatException ex) {
+					ex.printStackTrace();
+					return 0;
+				}
+			}
+		}
+		return 0;
+	}
+	
 	public String getPassword(String player) {
 		Properties prop = Properties.getProperties(player);
 		return prop.get("password");
